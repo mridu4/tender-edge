@@ -1,0 +1,563 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TenderEdge — Live Intelligence Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Mono:wght@300;400;500&family=Manrope:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg:#040b0e; --bg2:#070e13; --bg3:#0a1820;
+    --surface:#0d1f28; --surface2:#102430; --surface3:#142c38;
+    --green:#00f0b5; --green2:#00cc99; --teal:#00c8e0; --teal2:#0099b0;
+    --high:#00f0b5; --medium:#ffaa00; --low:#4a6670;
+    --c-ict:#00c8e0; --c-con:#ff7a3d; --c-med:#ff4d8b;
+    --c-cns:#a855f7; --c-egy:#fbbf24; --c-sup:#00f0b5;
+    --glow:rgba(0,240,181,.10);
+    --text:#dff2ec; --text2:#7ab0a0; --text3:#3d6a5e;
+    --border:rgba(0,240,181,.11); --border2:rgba(0,240,181,.055);
+    --font-d:'Syne',sans-serif; --font-m:'DM Mono',monospace; --font-b:'Manrope',sans-serif;
+  }
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-behavior:smooth}
+  body{background:var(--bg);color:var(--text);font-family:var(--font-b);font-size:14px;min-height:100vh;display:flex;overflow-x:hidden}
+
+  /* SIDEBAR */
+  .sidebar{width:248px;min-height:100vh;background:var(--bg2);border-right:1px solid var(--border2);display:flex;flex-direction:column;position:fixed;top:0;left:0;bottom:0;z-index:50}
+  .sidebar-logo{padding:26px 22px 18px;border-bottom:1px solid var(--border2);display:flex;align-items:center;gap:10px;font-family:var(--font-d);font-size:19px;font-weight:800;text-decoration:none;color:var(--text)}
+  .logo-box{width:34px;height:34px;background:linear-gradient(135deg,var(--green),var(--teal));border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:16px;box-shadow:0 0 20px rgba(0,240,181,.3)}
+  .sidebar-logo span{color:var(--green)}
+  .sidebar-section{padding:16px 20px 6px;font-family:var(--font-m);font-size:10px;color:var(--text3);letter-spacing:.12em;text-transform:uppercase}
+  .sidebar-nav{padding:0 12px;flex:1}
+  .nav-item{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:10px;color:var(--text3);font-size:13.5px;font-weight:500;cursor:pointer;transition:all .2s;margin-bottom:2px;text-decoration:none;border:1px solid transparent}
+  .nav-item:hover{background:rgba(0,240,181,.06);color:var(--text2)}
+  .nav-item.active{background:rgba(0,240,181,.09);border-color:rgba(0,240,181,.14);color:var(--green)}
+  .ni-icon{font-size:15px;width:20px;text-align:center}
+  .ni-badge{margin-left:auto;font-family:var(--font-m);font-size:10px;background:rgba(0,240,181,.13);color:var(--green);padding:2px 8px;border-radius:100px}
+
+  /* API status pill */
+  .api-pill{margin:10px 12px 0;padding:9px 13px;border-radius:10px;border:1px solid var(--border2);background:var(--bg3);display:flex;align-items:center;gap:8px}
+  .api-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0;transition:background .3s}
+  .api-dot.live{background:var(--green);animation:pdot 2s infinite}
+  .api-dot.demo{background:var(--medium)}
+  .api-dot.err{background:#ff4d6d}
+  @keyframes pdot{0%,100%{box-shadow:0 0 0 0 rgba(0,240,181,.5)}50%{box-shadow:0 0 0 5px rgba(0,240,181,0)}}
+  .api-label{font-family:var(--font-m);font-size:11px;color:var(--text2)}
+  .api-sub{font-family:var(--font-m);font-size:9.5px;color:var(--text3)}
+
+  .sidebar-footer{padding:14px 14px;border-top:1px solid var(--border2)}
+  .poll-btn{width:100%;background:linear-gradient(135deg,var(--green),var(--teal));color:var(--bg);border:none;padding:11px;border-radius:10px;font-family:var(--font-d);font-size:13px;font-weight:700;cursor:pointer;transition:all .25s;display:flex;align-items:center;justify-content:center;gap:6px;box-shadow:0 0 22px rgba(0,240,181,.2)}
+  .poll-btn:hover{box-shadow:0 0 36px rgba(0,240,181,.4);transform:translateY(-1px)}
+  .poll-btn:disabled{opacity:.4;cursor:not-allowed;transform:none}
+  .last-sync{text-align:center;font-family:var(--font-m);font-size:10px;color:var(--text3);margin-top:7px}
+
+  /* MAIN */
+  .main{margin-left:248px;flex:1;min-height:100vh;display:flex;flex-direction:column}
+
+  /* TOPBAR */
+  .topbar{background:rgba(4,11,14,.93);backdrop-filter:blur(20px);border-bottom:1px solid var(--border2);padding:0 26px;height:62px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:40}
+  .topbar-title{font-family:var(--font-d);font-size:17px;font-weight:700}
+  .topbar-right{display:flex;align-items:center;gap:11px}
+  .search-wrap{position:relative;display:flex;align-items:center}
+  .search-icon{position:absolute;left:11px;color:var(--text3);font-size:13px;pointer-events:none}
+  .search-bar{background:var(--surface);border:1px solid var(--border2);border-radius:9px;padding:8px 13px 8px 32px;font-family:var(--font-b);font-size:13px;color:var(--text);outline:none;width:230px;transition:all .2s}
+  .search-bar::placeholder{color:var(--text3)}
+  .search-bar:focus{border-color:rgba(0,240,181,.3);width:270px}
+  .filter-sel{padding:7px 28px 7px 11px;border-radius:8px;border:1px solid var(--border2);background:var(--surface);color:var(--text2);font-size:12px;font-family:var(--font-b);cursor:pointer;outline:none;transition:all .2s;appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%233d6a5e'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 9px center}
+  .filter-sel:focus,.filter-sel:hover{border-color:rgba(0,240,181,.25);color:var(--green)}
+  .live-pill{display:flex;align-items:center;gap:6px;font-family:var(--font-m);font-size:11px;color:var(--green);background:rgba(0,240,181,.07);border:1px solid rgba(0,240,181,.15);padding:5px 12px;border-radius:100px}
+  .ldot{width:7px;height:7px;border-radius:50%;background:var(--green);animation:pdot 2s infinite}
+
+  /* CONTENT */
+  .content{padding:22px 26px;flex:1}
+
+  /* STAT CARDS */
+  .stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:13px;margin-bottom:22px}
+  .stat-card{background:var(--surface);border:1px solid var(--border2);border-radius:14px;padding:19px 21px;position:relative;overflow:hidden;transition:all .3s;cursor:default}
+  .stat-card::after{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--green),var(--teal));transform:scaleX(0);transform-origin:left;transition:transform .4s ease}
+  .stat-card:hover{border-color:var(--border);transform:translateY(-3px);box-shadow:0 14px 44px rgba(0,0,0,.4)}
+  .stat-card:hover::after{transform:scaleX(1)}
+  .stat-label{font-family:var(--font-m);font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.1em;margin-bottom:9px}
+  .stat-value{font-family:var(--font-d);font-size:36px;font-weight:800;line-height:1;margin-bottom:6px}
+  .stat-sub{font-size:11.5px;color:var(--text3);display:flex;align-items:center;gap:4px}
+  .stat-up{color:var(--green)}
+  .stat-icon{position:absolute;top:17px;right:17px;font-size:24px;opacity:.14}
+
+  /* MAIN GRID */
+  .main-grid{display:grid;grid-template-columns:1fr 322px;gap:16px}
+
+  /* PANEL */
+  .panel{background:var(--surface);border:1px solid var(--border2);border-radius:14px;overflow:hidden}
+  .panel-header{padding:16px 20px;border-bottom:1px solid var(--border2);display:flex;align-items:center;justify-content:space-between;background:var(--bg3)}
+  .panel-title{font-family:var(--font-d);font-size:14px;font-weight:700;display:flex;align-items:center;gap:7px}
+  .panel-count{font-family:var(--font-m);font-size:11px;color:var(--text3);font-weight:400}
+  .panel-action{font-family:var(--font-m);font-size:11px;color:var(--green);cursor:pointer;border:1px solid rgba(0,240,181,.18);padding:4px 11px;border-radius:6px;background:rgba(0,240,181,.05);transition:all .2s}
+  .panel-action:hover{background:rgba(0,240,181,.12)}
+
+  /* TABLE */
+  .ttable{width:100%;border-collapse:collapse}
+  .ttable th{padding:9px 15px;text-align:left;font-family:var(--font-m);font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.08em;border-bottom:1px solid var(--border2);white-space:nowrap;background:var(--bg3)}
+  .ttable td{padding:12px 15px;border-bottom:1px solid rgba(0,240,181,.03);vertical-align:middle}
+  .ttable tr:last-child td{border-bottom:none}
+  .ttable tbody tr{transition:background .15s;cursor:pointer}
+  .ttable tbody tr:hover td{background:rgba(0,240,181,.025)}
+  .t-title{font-weight:600;font-size:13px;color:var(--text);max-width:250px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .t-pe{font-size:11px;color:var(--text3);margin-top:2px;max-width:250px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .t-val{font-family:var(--font-m);font-size:12px;color:var(--text2);white-space:nowrap}
+  .t-dl{font-family:var(--font-m);font-size:11px;white-space:nowrap}
+  .dl-u{color:#ff4d6d} .dl-s{color:var(--medium)} .dl-o{color:var(--text3)}
+
+  /* BADGES */
+  .sbadge{display:inline-flex;align-items:center;font-family:var(--font-m);font-size:10px;font-weight:500;padding:3px 9px;border-radius:100px;white-space:nowrap}
+  .s-ict{background:rgba(0,200,224,.13);color:var(--c-ict);border:1px solid rgba(0,200,224,.2)}
+  .s-con{background:rgba(255,122,61,.13);color:var(--c-con);border:1px solid rgba(255,122,61,.2)}
+  .s-med{background:rgba(255,77,139,.13);color:var(--c-med);border:1px solid rgba(255,77,139,.2)}
+  .s-cns{background:rgba(168,85,247,.13);color:var(--c-cns);border:1px solid rgba(168,85,247,.2)}
+  .s-egy{background:rgba(251,191,36,.13);color:var(--c-egy);border:1px solid rgba(251,191,36,.2)}
+  .s-sup{background:rgba(0,240,181,.11);color:var(--c-sup);border:1px solid rgba(0,240,181,.18)}
+  .s-oth{background:rgba(100,120,120,.1);color:var(--text3);border:1px solid rgba(100,120,120,.15)}
+
+  .rbadge{font-family:var(--font-m);font-size:10px;font-weight:600;padding:3px 9px;border-radius:100px}
+  .r-HIGH  {background:rgba(0,240,181,.14);color:var(--high);border:1px solid rgba(0,240,181,.25)}
+  /* MEDIUM: warm amber — much more readable than old yellow */
+  .r-MEDIUM{background:rgba(255,170,0,.14);color:#ffaa00;border:1px solid rgba(255,170,0,.3)}
+  .r-LOW   {background:rgba(74,102,112,.12);color:var(--low);border:1px solid rgba(74,102,112,.2)}
+
+  .src-chip{font-family:var(--font-m);font-size:9.5px;padding:2px 8px;border-radius:100px;background:rgba(0,200,224,.08);color:var(--teal);border:1px solid rgba(0,200,224,.15);white-space:nowrap}
+
+  /* PAGINATION */
+  .pag{padding:13px 20px;border-top:1px solid var(--border2);display:flex;align-items:center;justify-content:space-between;background:var(--bg3)}
+  .pg-info{font-family:var(--font-m);font-size:11px;color:var(--text3)}
+  .pg-btns{display:flex;gap:7px}
+  .pg-btn{padding:6px 13px;border-radius:7px;border:1px solid var(--border2);background:var(--surface);color:var(--text2);font-size:12px;cursor:pointer;transition:all .2s}
+  .pg-btn:hover{border-color:rgba(0,240,181,.3);color:var(--green)}
+  .pg-btn:disabled{opacity:.3;cursor:not-allowed}
+
+  /* RIGHT COL */
+  .right-col{display:flex;flex-direction:column;gap:16px}
+  .sector-list{padding:14px 18px}
+  .sector-row{display:flex;align-items:center;gap:9px;margin-bottom:12px}
+  .sector-row:last-child{margin-bottom:0}
+  .sr-lbl{font-size:12.5px;color:var(--text2);width:108px;flex-shrink:0}
+  .sr-track{flex:1;height:5px;background:var(--bg3);border-radius:3px;overflow:hidden}
+  .sr-fill{height:100%;border-radius:3px;background:linear-gradient(90deg,var(--green),var(--teal));transition:width 1.2s ease}
+  .sr-cnt{font-family:var(--font-m);font-size:11px;color:var(--text3);width:26px;text-align:right}
+
+  .pricing-list{padding:13px 16px}
+  .pr-row{background:var(--bg3);border-radius:10px;padding:12px 14px;margin-bottom:9px;border:1px solid var(--border2);transition:border-color .2s}
+  .pr-row:hover{border-color:var(--border)}
+  .pr-row:last-child{margin-bottom:0}
+  .pr-hdr{display:flex;justify-content:space-between;align-items:center;margin-bottom:7px}
+  .pr-sec{font-size:12.5px;font-weight:600}
+  .pr-rat{font-family:var(--font-m);font-size:11.5px;color:var(--green)}
+  .pr-bar{height:4px;background:var(--bg);border-radius:2px;position:relative;overflow:hidden}
+  .pr-fill{position:absolute;height:100%;background:linear-gradient(90deg,var(--green),var(--teal));border-radius:2px}
+  .pr-lbls{display:flex;justify-content:space-between;margin-top:3px;font-family:var(--font-m);font-size:9.5px;color:var(--text3)}
+
+  .awards-list{padding:13px 16px}
+  .aw-item{display:flex;gap:10px;padding:10px 0;border-bottom:1px solid var(--border2);align-items:flex-start}
+  .aw-item:last-child{border-bottom:none}
+  .aw-ic{width:30px;height:30px;border-radius:8px;background:rgba(0,240,181,.07);display:flex;align-items:center;justify-content:center;font-size:13px;flex-shrink:0}
+  .aw-title{font-size:11.5px;font-weight:600;color:var(--text);line-height:1.4;margin-bottom:2px}
+  .aw-win{font-size:10.5px;color:var(--text3)}
+  .aw-rat{margin-left:auto;font-family:var(--font-m);font-size:11px;color:var(--teal);flex-shrink:0}
+
+  /* MODAL */
+  .overlay{position:fixed;inset:0;background:rgba(0,0,0,.82);backdrop-filter:blur(6px);z-index:200;display:none;align-items:center;justify-content:center;padding:36px}
+  .overlay.open{display:flex}
+  .modal{background:var(--bg2);border:1px solid var(--border);border-radius:20px;width:100%;max-width:630px;max-height:82vh;overflow-y:auto;box-shadow:0 40px 80px rgba(0,0,0,.7)}
+  .modal::before{content:'';display:block;height:2px;background:linear-gradient(90deg,var(--green),var(--teal));border-radius:20px 20px 0 0}
+  .m-hdr{padding:21px 24px;border-bottom:1px solid var(--border2);display:flex;align-items:flex-start;justify-content:space-between;gap:14px}
+  .m-title{font-family:var(--font-d);font-size:16px;font-weight:700;line-height:1.3}
+  .m-close{background:none;border:none;color:var(--text3);font-size:18px;cursor:pointer;padding:3px;transition:color .2s;flex-shrink:0;line-height:1}
+  .m-close:hover{color:var(--text)}
+  .m-body{padding:20px 24px}
+  .m-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:16px}
+  .m-field{margin-bottom:14px}
+  .m-lbl{font-family:var(--font-m);font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.08em;margin-bottom:4px}
+  .m-val{font-size:13.5px;color:var(--text2);line-height:1.6}
+  .m-hi{font-family:var(--font-m);font-size:13.5px;color:var(--green)}
+  .m-foot{padding:16px 24px;border-top:1px solid var(--border2);display:flex;gap:10px}
+  .mb-p{flex:1;background:linear-gradient(135deg,var(--green),var(--teal));color:var(--bg);border:none;padding:11px;border-radius:10px;font-family:var(--font-d);font-weight:700;font-size:14px;cursor:pointer;transition:opacity .2s;box-shadow:0 0 22px rgba(0,240,181,.25)}
+  .mb-p:hover{opacity:.85}
+  .mb-s{flex:1;background:none;color:var(--text2);border:1px solid var(--border);padding:11px;border-radius:10px;font-size:14px;cursor:pointer;transition:all .2s}
+  .mb-s:hover{border-color:rgba(0,240,181,.3);color:var(--green)}
+
+  /* TOAST */
+  .toast{position:fixed;bottom:26px;right:26px;background:var(--surface2);border:1px solid var(--border);border-radius:11px;padding:12px 17px;font-size:13px;color:var(--text);z-index:300;transform:translateY(70px);opacity:0;transition:all .3s ease;max-width:310px;box-shadow:0 20px 50px rgba(0,0,0,.5)}
+  .toast.show{transform:translateY(0);opacity:1}
+
+  /* SKELETON */
+  .skel{background:linear-gradient(90deg,var(--surface) 25%,var(--surface2) 50%,var(--surface) 75%);background-size:200% 100%;animation:shimmer 1.6s infinite;border-radius:6px}
+  @keyframes shimmer{0%{background-position:200% 0}100%{background-position:-200% 0}}
+  .empty-state{text-align:center;padding:48px 20px;color:var(--text3)}
+  .empty-icon{font-size:36px;margin-bottom:9px;opacity:.4}
+  @keyframes fi{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+  .fi{animation:fi .35s ease both}
+  @keyframes spin{to{transform:rotate(360deg)}}
+  .spinning{animation:spin .7s linear infinite}
+</style>
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<aside class="sidebar">
+  <a href="index.html" class="sidebar-logo">
+    <div class="logo-box">⚡</div>Tender<span>Edge</span>
+  </a>
+
+  <!-- Live API status -->
+  <div class="api-pill" id="api-pill">
+    <div class="api-dot" id="api-dot"></div>
+    <div>
+      <div class="api-label" id="api-label">Connecting…</div>
+      <div class="api-sub"   id="api-sub">NeST Tanzania API</div>
+    </div>
+  </div>
+
+  <div class="sidebar-section" style="padding-top:13px">Intelligence</div>
+  <nav class="sidebar-nav">
+    <div class="nav-item active" onclick="showView('tenders',this)">
+      <span class="ni-icon">📋</span>Live Tenders<span class="ni-badge" id="b-total">—</span>
+    </div>
+    <div class="nav-item" onclick="showView('high',this)">
+      <span class="ni-icon">🎯</span>High Priority<span class="ni-badge" id="b-high">—</span>
+    </div>
+    <div class="nav-item" onclick="showView('awards',this)">
+      <span class="ni-icon">🏆</span>Award Records
+    </div>
+    <div class="nav-item" onclick="showView('pricing',this)">
+      <span class="ni-icon">💰</span>Pricing Benchmarks
+    </div>
+    <div class="sidebar-section" style="padding-left:0;margin-top:5px">Live Portals</div>
+    <a class="nav-item" href="https://nest.go.tz" target="_blank"><span class="ni-icon">🇹🇿</span>NeST Tanzania<span style="margin-left:auto;font-size:10px;color:var(--text3)">↗</span></a>
+    <a class="nav-item" href="https://tenders.go.ke/tenders" target="_blank"><span class="ni-icon">🇰🇪</span>Kenya Tenders<span style="margin-left:auto;font-size:10px;color:var(--text3)">↗</span></a>
+    <a class="nav-item" href="https://www.ppra.go.tz" target="_blank"><span class="ni-icon">🏛️</span>PPRA Tanzania<span style="margin-left:auto;font-size:10px;color:var(--text3)">↗</span></a>
+    <a class="nav-item" href="https://www.biddetail.com/tanzania/latest-tenders" target="_blank"><span class="ni-icon">🌍</span>BidDetail TZ<span style="margin-left:auto;font-size:10px;color:var(--text3)">↗</span></a>
+  </nav>
+
+  <div class="sidebar-footer">
+    <button class="poll-btn" onclick="syncNow()" id="poll-btn">
+      <span id="spin-ico">⟳</span> Sync NeST API
+    </button>
+    <div class="last-sync" id="last-sync">Last sync: Never</div>
+  </div>
+</aside>
+
+<!-- MAIN -->
+<div class="main">
+  <header class="topbar">
+    <div class="topbar-title" id="view-title">Live Tender Intelligence</div>
+    <div class="topbar-right">
+      <div class="search-wrap">
+        <span class="search-icon">🔍</span>
+        <input class="search-bar" type="text" placeholder="Search tenders, PEs, sectors…" oninput="onSearch(this.value)">
+      </div>
+      <select class="filter-sel" id="f-sec" onchange="applyFilters()">
+        <option value="">All Sectors</option>
+        <option>ICT</option><option>Construction</option>
+        <option>Medical</option><option>Consultancy</option>
+        <option>Energy</option><option>Supply/Goods</option>
+      </select>
+      <select class="filter-sel" id="f-rel" onchange="applyFilters()">
+        <option value="">All Priority</option>
+        <option value="HIGH">🟢 High</option>
+        <option value="MEDIUM">🟠 Medium</option>
+        <option value="LOW">⚫ Low</option>
+      </select>
+      <div class="live-pill"><div class="ldot"></div>LIVE</div>
+    </div>
+  </header>
+
+  <div class="content">
+    <!-- STATS -->
+    <div class="stats-row">
+      <div class="stat-card">
+        <div class="stat-label">Total Tenders</div>
+        <div class="stat-value" id="st-total" style="background:linear-gradient(135deg,var(--green),var(--teal));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text">—</div>
+        <div class="stat-sub"><span class="stat-up">↑</span>&nbsp;NeST + Kenya portals</div>
+        <div class="stat-icon">📋</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">High Priority</div>
+        <div class="stat-value" id="st-high" style="color:var(--green)">—</div>
+        <div class="stat-sub">Matching your profile</div>
+        <div class="stat-icon">🎯</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Award Records</div>
+        <div class="stat-value" id="st-awards" style="color:var(--teal)">—</div>
+        <div class="stat-sub">Post-award intelligence</div>
+        <div class="stat-icon">🏆</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Avg Win Price Ratio</div>
+        <div class="stat-value" id="st-ratio" style="color:var(--medium)">93%</div>
+        <div class="stat-sub">Of estimate — TZ average</div>
+        <div class="stat-icon">💰</div>
+      </div>
+    </div>
+
+    <!-- GRID -->
+    <div class="main-grid">
+      <!-- TABLE -->
+      <div class="panel">
+        <div class="panel-header">
+          <div class="panel-title">📋 Live Tenders <span class="panel-count" id="tbl-count"></span></div>
+          <div class="panel-action" onclick="exportCSV()">⬇ Export CSV</div>
+        </div>
+        <table class="ttable">
+          <thead><tr><th>Tender &amp; Entity</th><th>Sector</th><th>Priority</th><th>Value</th><th>Deadline</th><th>Source</th></tr></thead>
+          <tbody id="tbody"></tbody>
+        </table>
+        <div class="pag">
+          <div class="pg-info" id="pg-info">Page 1</div>
+          <div class="pg-btns">
+            <button class="pg-btn" onclick="prevPage()" id="btn-prev" disabled>← Prev</button>
+            <button class="pg-btn" onclick="nextPage()" id="btn-next">Next →</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- RIGHT -->
+      <div class="right-col">
+        <div class="panel">
+          <div class="panel-header"><div class="panel-title">📊 By Sector</div></div>
+          <div class="sector-list" id="sector-list">
+            <div class="skel" style="height:9px;margin-bottom:14px"></div>
+            <div class="skel" style="height:9px;margin-bottom:14px;width:78%"></div>
+            <div class="skel" style="height:9px;margin-bottom:14px;width:58%"></div>
+            <div class="skel" style="height:9px;width:42%"></div>
+          </div>
+        </div>
+
+        <div class="panel">
+          <div class="panel-header"><div class="panel-title">💰 Pricing Benchmarks</div></div>
+          <div class="pricing-list" id="pricing-list">
+            <div class="pr-row"><div class="pr-hdr"><div class="pr-sec">ICT</div><div class="pr-rat">~92% of estimate</div></div><div class="pr-bar"><div class="pr-fill" style="left:62%;width:23%"></div></div><div class="pr-lbls"><span>85%</span><span>96%</span></div></div>
+            <div class="pr-row"><div class="pr-hdr"><div class="pr-sec">Construction</div><div class="pr-rat">~93% of estimate</div></div><div class="pr-bar"><div class="pr-fill" style="left:64%;width:24%"></div></div><div class="pr-lbls"><span>86%</span><span>97%</span></div></div>
+            <div class="pr-row"><div class="pr-hdr"><div class="pr-sec">Medical</div><div class="pr-rat">~90% of estimate</div></div><div class="pr-bar"><div class="pr-fill" style="left:58%;width:22%"></div></div><div class="pr-lbls"><span>82%</span><span>94%</span></div></div>
+            <div class="pr-row"><div class="pr-hdr"><div class="pr-sec">Consultancy</div><div class="pr-rat">~88% of estimate</div></div><div class="pr-bar"><div class="pr-fill" style="left:55%;width:21%"></div></div><div class="pr-lbls"><span>80%</span><span>92%</span></div></div>
+          </div>
+        </div>
+
+        <div class="panel">
+          <div class="panel-header"><div class="panel-title">🏆 Recent Awards</div></div>
+          <div class="awards-list" id="awards-list">
+            <div class="skel" style="height:42px;margin-bottom:9px;border-radius:8px"></div>
+            <div class="skel" style="height:42px;margin-bottom:9px;border-radius:8px"></div>
+            <div class="skel" style="height:42px;border-radius:8px"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL -->
+<div class="overlay" id="overlay" onclick="closeModal(event)">
+  <div class="modal">
+    <div class="m-hdr"><div class="m-title" id="m-title">Tender Details</div><button class="m-close" onclick="closeModal()">✕</button></div>
+    <div class="m-body" id="m-body"></div>
+    <div class="m-foot">
+      <button class="mb-p">📝 Draft Proposal with AI</button>
+      <button class="mb-s">📋 Add to Watchlist</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const NEST  = 'https://nest.go.tz/gateway/nest-data-portal-api/api';
+const LOCAL = 'http://localhost:5000/api';
+const PER   = 14;
+
+let all=[], filtered=[], awards=[], page=1, sq='';
+
+/* ── DEMO DATA ─────────────────────────────── */
+const DT=[
+  {ocid:'TZ-001',title:'Supply of ICT Equipment to Ministry of Finance',procuring_entity:'Ministry of Finance Tanzania',sector:'ICT',relevance_score:'HIGH',value_amount:285000000,value_currency:'TZS',deadline:'2025-04-15T23:59:00Z',source:'NeST Tanzania'},
+  {ocid:'TZ-002',title:'Construction of District Hospital — Dodoma Region',procuring_entity:'Ministry of Health Tanzania',sector:'Construction',relevance_score:'HIGH',value_amount:4500000000,value_currency:'TZS',deadline:'2025-05-01T23:59:00Z',source:'NeST Tanzania'},
+  {ocid:'TZ-003',title:'Consultancy for Road Feasibility Study — Mwanza',procuring_entity:'Tanzania Roads Authority (TANROADS)',sector:'Consultancy',relevance_score:'HIGH',value_amount:180000000,value_currency:'TZS',deadline:'2025-04-20T23:59:00Z',source:'NeST Tanzania'},
+  {ocid:'TZ-004',title:'Annual Supply of Essential Medicines and Medical Consumables',procuring_entity:'Medical Stores Department (MSD)',sector:'Medical',relevance_score:'HIGH',value_amount:920000000,value_currency:'TZS',deadline:'2025-04-30T23:59:00Z',source:'NeST Tanzania'},
+  {ocid:'TZ-005',title:'Solar Power Installation — Rural Electrification Zanzibar',procuring_entity:'ZECO Zanzibar',sector:'Energy',relevance_score:'HIGH',value_amount:3200000000,value_currency:'TZS',deadline:'2025-05-15T23:59:00Z',source:'NeST Tanzania'},
+  {ocid:'TZ-006',title:'Supply of Office Furniture — PPRA New Headquarters',procuring_entity:'PPRA Tanzania',sector:'Supply/Goods',relevance_score:'MEDIUM',value_amount:45000000,value_currency:'TZS',deadline:'2025-04-10T23:59:00Z',source:'NeST Tanzania'},
+  {ocid:'TZ-007',title:'Rehabilitation of Dar es Salaam Port Access Roads',procuring_entity:'Tanzania Ports Authority (TPA)',sector:'Construction',relevance_score:'HIGH',value_amount:6800000000,value_currency:'TZS',deadline:'2025-05-20T23:59:00Z',source:'NeST Tanzania'},
+  {ocid:'TZ-008',title:'Enterprise Resource Planning (ERP) System Implementation',procuring_entity:'Ministry of Finance Tanzania',sector:'ICT',relevance_score:'HIGH',value_amount:1200000000,value_currency:'TZS',deadline:'2025-06-01T23:59:00Z',source:'NeST Tanzania'},
+  {ocid:'KE-001',title:'Supply of Laptops and Network Infrastructure — KRA',procuring_entity:'Kenya Revenue Authority (KRA)',sector:'ICT',relevance_score:'HIGH',value_amount:45000000,value_currency:'KES',deadline:'2025-04-25T23:59:00Z',source:'Kenya Tenders'},
+  {ocid:'TZ-009',title:'Water Supply and Sanitation Project — Tabora Region',procuring_entity:'RUWASA Tanzania',sector:'Construction',relevance_score:'MEDIUM',value_amount:2100000000,value_currency:'TZS',deadline:'2025-05-10T23:59:00Z',source:'NeST Tanzania'},
+  {ocid:'TZ-010',title:'Pharmaceutical Cold Chain Equipment Supply',procuring_entity:'Medical Stores Department (MSD)',sector:'Medical',relevance_score:'MEDIUM',value_amount:340000000,value_currency:'TZS',deadline:'2025-04-28T23:59:00Z',source:'NeST Tanzania'},
+  {ocid:'TZ-011',title:'Environmental Impact Assessment — SGR Phase II',procuring_entity:'Tanzania Railways Corporation',sector:'Consultancy',relevance_score:'MEDIUM',value_amount:95000000,value_currency:'TZS',deadline:'2025-05-05T23:59:00Z',source:'NeST Tanzania'},
+  {ocid:'TZ-012',title:'Supply of Laboratory Equipment to Muhimbili Hospital',procuring_entity:'Muhimbili National Hospital (MNH)',sector:'Medical',relevance_score:'HIGH',value_amount:520000000,value_currency:'TZS',deadline:'2025-05-12T23:59:00Z',source:'NeST Tanzania'},
+  {ocid:'TZ-013',title:'ICT Infrastructure Upgrade — TANESCO Head Office',procuring_entity:'TANESCO',sector:'ICT',relevance_score:'MEDIUM',value_amount:380000000,value_currency:'TZS',deadline:'2025-05-18T23:59:00Z',source:'NeST Tanzania'},
+  {ocid:'TZ-014',title:'Construction of 200 Rural School Classrooms — Dodoma',procuring_entity:'Ministry of Education Tanzania',sector:'Construction',relevance_score:'HIGH',value_amount:3600000000,value_currency:'TZS',deadline:'2025-06-10T23:59:00Z',source:'NeST Tanzania'},
+];
+const DA=[
+  {tender_title:'Supply of 200 Computers to TRA',winner_name:'ABC Tech Solutions Ltd',award_value:185000000,award_currency:'TZS',price_ratio:.925},
+  {tender_title:'Road Rehabilitation Moshi-Arusha',winner_name:'Strabag East Africa Ltd',award_value:4200000000,award_currency:'TZS',price_ratio:.933},
+  {tender_title:'Medical Supplies MSD Q3 2024',winner_name:'Pharmaceutical Distributors TZ',award_value:850000000,award_currency:'TZS',price_ratio:.924},
+  {tender_title:'Solar PV — Rural Electrification',winner_name:'SunTech Africa (T) Ltd',award_value:2800000000,award_currency:'TZS',price_ratio:.875},
+];
+const DS={Construction:312,ICT:198,Medical:124,Consultancy:98,Energy:67,'Supply/Goods':48};
+
+/* ── INIT ───────────────────────────────────── */
+window.addEventListener('DOMContentLoaded',()=>{ load(); setInterval(load,300000); });
+
+async function load(){
+  setStatus('loading');
+  // 1. Try local API
+  try{
+    const r=await race(fetch(`${LOCAL}/stats`),3000);
+    if(r.ok){
+      const s=await r.json();
+      const [tr,ar]=await Promise.all([fetch(`${LOCAL}/tenders?per_page=200`),fetch(`${LOCAL}/awards`)]);
+      const td=await tr.json(); const ad=await ar.json();
+      all=[...(td.tenders||[])]; awards=[...(Array.isArray(ad)?ad:[])];
+      renderAll(s,DS); setStatus('local','Local API','localhost:5000'); setSync('Local API — '+hm()); return;
+    }
+  }catch{}
+  // 2. Try NeST direct
+  try{
+    const r=await race(fetch(`${NEST}/releases?cursor=0`),5000);
+    if(r.ok){
+      const d=await r.json(); const rels=d.releases||[];
+      all=rels.map(parseR).filter(Boolean); awards=[];
+      const s={total_tenders:all.length,high_relevance:all.filter(t=>t.relevance_score==='HIGH').length,total_awards:0};
+      renderAll(s,buildSec(all)); setStatus('live','NeST API — Live','nest.go.tz'); setSync('NeST Live — '+hm()); return;
+    }
+  }catch{}
+  // 3. Demo
+  all=[...DT]; awards=[...DA];
+  renderAll({total_tenders:all.length,high_relevance:all.filter(t=>t.relevance_score==='HIGH').length,total_awards:awards.length},DS);
+  setStatus('demo','Demo Mode','Run api_server.py for live data'); setSync('Demo mode');
+}
+
+function race(p,ms){return Promise.race([p,new Promise((_,r)=>setTimeout(()=>r(new Error),ms))]);}
+
+/* ── OCDS PARSER ────────────────────────────── */
+const SKW={ICT:['software','hardware','ict','information technology','computer','network','server','system','digital','database','erp'],Construction:['construction','road','building','civil','bridge','rehabilitation','water','sanitation','school','classrooms'],Medical:['medical','pharmaceutical','health','hospital','drug','medicine','laboratory','cold chain','clinic'],Consultancy:['consultancy','consulting','advisory','feasibility','study','research','evaluation','assessment'],Energy:['energy','electricity','solar','power','generator','fuel','petroleum','electrification'],'Supply/Goods':['supply','goods','furniture','vehicle','stationary','uniform','food','printing','laptops']};
+function classify(txt){const t=txt.toLowerCase();let b='Other',bs=0;for(const[s,kw]of Object.entries(SKW)){const sc=kw.reduce((n,k)=>n+(t.includes(k)?1:0),0);if(sc>bs){bs=sc;b=s;}}return b;}
+function rel(txt){const t=txt.toLowerCase();const h=Object.values(SKW).flat().reduce((n,k)=>n+(t.includes(k)?1:0),0);return h>=3?'HIGH':h>=1?'MEDIUM':'LOW';}
+function parseR(r){try{const t=r.tender||{},pe=r.buyer||{},v=t.value||{},dl=(t.tenderPeriod||{}).endDate,raw=(t.title||'')+' '+(t.description||'');return{ocid:r.ocid||'',title:t.title||'Untitled',description:(t.description||'').slice(0,400),procuring_entity:pe.name||'Unknown',sector:classify(raw),relevance_score:rel(raw),value_amount:v.amount||null,value_currency:v.currency||'TZS',deadline:dl||null,status:t.status||'active',published_date:r.date||'',source:'NeST Tanzania'};}catch{return null;}}
+function buildSec(tenders){const m={};tenders.forEach(t=>{m[t.sector]=(m[t.sector]||0)+1;});return m;}
+
+/* ── RENDER ALL ─────────────────────────────── */
+function renderAll(s,secs){
+  countUp('st-total',s.total_tenders||0); countUp('st-high',s.high_relevance||0); countUp('st-awards',s.total_awards||0);
+  filtered=[...all]; page=1; renderTable(); renderSectors(secs); renderAwards(awards.slice(0,4));
+  document.getElementById('b-total').textContent=s.total_tenders||all.length;
+  document.getElementById('b-high').textContent=s.high_relevance||all.filter(t=>t.relevance_score==='HIGH').length;
+}
+function countUp(id,target){const el=document.getElementById(id);if(!el)return;let v=0,step=Math.max(1,Math.ceil(target/40));const t=setInterval(()=>{v=Math.min(v+step,target);el.textContent=v.toLocaleString();if(v>=target)clearInterval(t);},28);}
+
+/* ── SECTORS ────────────────────────────────── */
+function renderSectors(secs){
+  const max=Math.max(...Object.values(secs),1);
+  document.getElementById('sector-list').innerHTML=Object.entries(secs).sort((a,b)=>b[1]-a[1]).map(([n,c])=>`<div class="sector-row fi"><div class="sr-lbl">${n}</div><div class="sr-track"><div class="sr-fill" style="width:${Math.round(c/max*100)}%"></div></div><div class="sr-cnt">${c}</div></div>`).join('');
+}
+
+/* ── AWARDS ─────────────────────────────────── */
+function renderAwards(aw){
+  if(!aw.length){document.getElementById('awards-list').innerHTML='<div class="empty-state"><div class="empty-icon">🏆</div><p>No records yet</p></div>';return;}
+  document.getElementById('awards-list').innerHTML=aw.map(a=>`<div class="aw-item fi"><div class="aw-ic">🏆</div><div style="flex:1;min-width:0"><div class="aw-title">${trunc(a.tender_title||'',48)}</div><div class="aw-win">${a.winner_name||'—'}</div></div><div class="aw-rat">${a.price_ratio?Math.round(a.price_ratio*100)+'%':'—'}</div></div>`).join('');
+}
+
+/* ── TABLE ──────────────────────────────────── */
+function renderTable(){
+  const start=(page-1)*PER,pg=filtered.slice(start,start+PER),tot=filtered.length,pages=Math.max(1,Math.ceil(tot/PER));
+  document.getElementById('tbl-count').textContent=`(${tot})`;
+  document.getElementById('pg-info').textContent=`Page ${page} of ${pages}`;
+  document.getElementById('btn-prev').disabled=page<=1;
+  document.getElementById('btn-next').disabled=page>=pages;
+  if(!pg.length){document.getElementById('tbody').innerHTML=`<tr><td colspan="6"><div class="empty-state"><div class="empty-icon">🔍</div><p>No tenders match</p></div></td></tr>`;return;}
+  document.getElementById('tbody').innerHTML=pg.map(t=>`<tr onclick="openModal('${t.ocid}')" class="fi"><td><div class="t-title">${t.title||'Untitled'}</div><div class="t-pe">${t.procuring_entity||'—'}</div></td><td><span class="sbadge ${sc(t.sector)}">${t.sector||'Other'}</span></td><td><span class="rbadge r-${t.relevance_score||'LOW'}">${t.relevance_score||'LOW'}</span></td><td class="t-val">${fv(t.value_amount,t.value_currency)}</td><td class="t-dl ${dc(t.deadline)}">${fd(t.deadline)}</td><td><span class="src-chip">${t.source||'NeST'}</span></td></tr>`).join('');
+}
+function sc(s){const m={ICT:'s-ict',Construction:'s-con',Medical:'s-med',Consultancy:'s-cns',Energy:'s-egy','Supply/Goods':'s-sup'};return m[s]||'s-oth';}
+function fv(a,c){if(!a)return'—';const cu=c||'TZS';if(a>=1e9)return`${cu} ${(a/1e9).toFixed(1)}B`;if(a>=1e6)return`${cu} ${(a/1e6).toFixed(1)}M`;if(a>=1e3)return`${cu} ${(a/1e3).toFixed(0)}K`;return`${cu} ${a}`;}
+function fd(dl){if(!dl)return'—';const d=new Date(dl),diff=Math.ceil((d-new Date())/86400000);if(diff<0)return'Expired';if(!diff)return'Today!';if(diff<=7)return`${diff}d left`;return d.toLocaleDateString('en-GB',{day:'numeric',month:'short'});}
+function dc(dl){if(!dl)return'';const d=Math.ceil((new Date(dl)-new Date())/86400000);return d<0?'dl-u':d<=7?'dl-u':d<=21?'dl-s':'dl-o';}
+function trunc(s,n){return s.length>n?s.slice(0,n)+'…':s;}
+
+/* ── FILTERS ────────────────────────────────── */
+function onSearch(q){sq=q.toLowerCase();applyFilters();}
+function applyFilters(){
+  const sec=document.getElementById('f-sec').value,rel=document.getElementById('f-rel').value;
+  page=1;
+  filtered=all.filter(t=>{
+    const ms=!sq||(t.title||'').toLowerCase().includes(sq)||(t.procuring_entity||'').toLowerCase().includes(sq)||(t.sector||'').toLowerCase().includes(sq);
+    return ms&&(!sec||t.sector===sec)&&(!rel||t.relevance_score===rel);
+  });
+  renderTable();
+}
+function nextPage(){page++;renderTable();scrollTo(0,200);}
+function prevPage(){page--;renderTable();scrollTo(0,200);}
+
+/* ── VIEWS ──────────────────────────────────── */
+function showView(v,el){
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+  el?.classList.add('active');
+  document.getElementById('view-title').textContent={tenders:'Live Tender Intelligence',high:'High Priority Tenders',awards:'Award Records',pricing:'Pricing Benchmarks'}[v]||'Dashboard';
+  if(v==='high'){filtered=all.filter(t=>t.relevance_score==='HIGH');document.getElementById('f-rel').value='HIGH';page=1;renderTable();}
+  else if(v==='tenders'){filtered=[...all];document.getElementById('f-rel').value='';page=1;renderTable();}
+}
+
+/* ── MODAL ──────────────────────────────────── */
+function openModal(ocid){
+  const t=all.find(x=>x.ocid===ocid);if(!t)return;
+  const diff=t.deadline?Math.ceil((new Date(t.deadline)-new Date())/86400000):null;
+  document.getElementById('m-title').textContent=t.title||'Tender Details';
+  document.getElementById('m-body').innerHTML=`
+    <div class="m-grid">
+      <div class="m-field"><div class="m-lbl">OCID</div><div class="m-hi">${t.ocid}</div></div>
+      <div class="m-field"><div class="m-lbl">Source</div><div class="m-val">${t.source||'NeST Tanzania'}</div></div>
+      <div class="m-field"><div class="m-lbl">Priority</div><div><span class="rbadge r-${t.relevance_score}">${t.relevance_score}</span></div></div>
+      <div class="m-field"><div class="m-lbl">Sector</div><div><span class="sbadge ${sc(t.sector)}">${t.sector}</span></div></div>
+    </div>
+    <div class="m-field"><div class="m-lbl">Procuring Entity</div><div class="m-val" style="font-weight:600;color:var(--text)">${t.procuring_entity||'—'}</div></div>
+    <div class="m-field"><div class="m-lbl">Description</div><div class="m-val">${t.description||'No description available.'}</div></div>
+    <div class="m-grid">
+      <div class="m-field"><div class="m-lbl">Contract Value</div><div class="m-hi">${fv(t.value_amount,t.value_currency)}</div></div>
+      <div class="m-field"><div class="m-lbl">Deadline</div><div class="m-hi ${dc(t.deadline)}">${t.deadline?new Date(t.deadline).toLocaleDateString('en-GB',{day:'numeric',month:'long',year:'numeric'}):'—'}${diff!==null?`<span style="font-size:11px;color:var(--text3)"> (${diff>0?diff+' days':'Expired'})</span>`:''}</div></div>
+      <div class="m-field"><div class="m-lbl">Status</div><div class="m-val" style="text-transform:capitalize">${t.status||'active'}</div></div>
+      <div class="m-field"><div class="m-lbl">Published</div><div class="m-val">${t.published_date?new Date(t.published_date).toLocaleDateString('en-GB'):'—'}</div></div>
+    </div>`;
+  document.getElementById('overlay').classList.add('open');
+}
+function closeModal(e){if(!e||e.target===document.getElementById('overlay'))document.getElementById('overlay').classList.remove('open');}
+
+/* ── SYNC ───────────────────────────────────── */
+async function syncNow(){
+  const btn=document.getElementById('poll-btn'),ico=document.getElementById('spin-ico');
+  btn.disabled=true;ico.classList.add('spinning');toast('⟳ Syncing with NeST Tanzania…');
+  try{await fetch(`${LOCAL}/poll`,{method:'POST'});}catch{}
+  setTimeout(async()=>{await load();btn.disabled=false;ico.classList.remove('spinning');toast('✅ Sync complete!');},3000);
+}
+
+/* ── API STATUS ─────────────────────────────── */
+function setStatus(mode,label,sub){
+  const d=document.getElementById('api-dot'),l=document.getElementById('api-label'),s=document.getElementById('api-sub');
+  d.className='api-dot';
+  if(mode==='live'||mode==='local'){d.classList.add('live');l.textContent=label||'Live';s.textContent=sub||'';}
+  else if(mode==='demo'){d.classList.add('demo');l.textContent=label||'Demo Mode';s.textContent=sub||'';}
+  else if(mode==='error'){d.classList.add('err');l.textContent='Connection Error';s.textContent='Retry…';}
+  else{l.textContent='Connecting…';s.textContent='NeST Tanzania API';}
+}
+function setSync(txt){document.getElementById('last-sync').textContent='Synced: '+txt;}
+function hm(){return new Date().toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'});}
+
+/* ── EXPORT ─────────────────────────────────── */
+function exportCSV(){
+  const h=['OCID','Title','Procuring Entity','Sector','Priority','Value','Currency','Deadline','Source'];
+  const rows=filtered.map(t=>[t.ocid,`"${(t.title||'').replace(/"/g,'""')}"`,`"${(t.procuring_entity||'').replace(/"/g,'""')}"`,t.sector,t.relevance_score,t.value_amount||'',t.value_currency||'TZS',t.deadline||'',t.source||'NeST']);
+  const csv=[h,...rows].map(r=>r.join(',')).join('\n');
+  const a=document.createElement('a');a.href='data:text/csv;charset=utf-8,'+encodeURIComponent(csv);a.download=`TenderEdge_${new Date().toISOString().split('T')[0]}.csv`;a.click();
+  toast('✅ CSV exported!');
+}
+
+/* ── TOAST ──────────────────────────────────── */
+function toast(msg){const el=document.getElementById('toast');el.textContent=msg;el.classList.add('show');setTimeout(()=>el.classList.remove('show'),3200);}
+document.addEventListener('keydown',e=>{if(e.key==='Escape')closeModal();});
+</script>
+</body>
+</html>
