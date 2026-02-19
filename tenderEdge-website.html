@@ -1,0 +1,2149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TenderEdge — Win More Tenders with AI</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Mono:wght@300;400;500&family=Manrope:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #050c0f;
+    --bg2: #080f14;
+    --bg3: #0c1a20;
+    --surface: #0f2028;
+    --surface2: #132530;
+    --green: #00e5b0;
+    --green2: #00c49a;
+    --teal: #00b8d9;
+    --teal2: #0097b2;
+    --glow: rgba(0,229,176,0.15);
+    --glow2: rgba(0,184,217,0.12);
+    --text: #e8f4f0;
+    --text2: #8ab8aa;
+    --text3: #4d7a6e;
+    --border: rgba(0,229,176,0.12);
+    --border2: rgba(0,229,176,0.06);
+    --font-display: 'Syne', sans-serif;
+    --font-mono: 'DM Mono', monospace;
+    --font-body: 'Manrope', sans-serif;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--font-body);
+    font-size: 16px;
+    line-height: 1.6;
+    overflow-x: hidden;
+  }
+
+  /* ── NOISE OVERLAY ── */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 0;
+    opacity: 0.4;
+  }
+
+  /* ── NAV ── */
+  nav {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    z-index: 100;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 20px 60px;
+    background: rgba(5,12,15,0.85);
+    backdrop-filter: blur(20px);
+    border-bottom: 1px solid var(--border2);
+    transition: all 0.3s ease;
+  }
+
+  .nav-logo {
+    font-family: var(--font-display);
+    font-size: 22px;
+    font-weight: 800;
+    color: var(--text);
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .nav-logo .logo-icon {
+    width: 34px; height: 34px;
+    background: linear-gradient(135deg, var(--green), var(--teal));
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+  }
+
+  .nav-logo span { color: var(--green); }
+
+  .nav-links {
+    display: flex;
+    gap: 36px;
+    list-style: none;
+  }
+
+  .nav-links a {
+    color: var(--text2);
+    text-decoration: none;
+    font-size: 14px;
+    font-weight: 500;
+    letter-spacing: 0.02em;
+    transition: color 0.2s;
+    font-family: var(--font-body);
+  }
+
+  .nav-links a:hover { color: var(--green); }
+
+  .nav-cta {
+    background: linear-gradient(135deg, var(--green), var(--teal));
+    color: var(--bg) !important;
+    padding: 10px 24px !important;
+    border-radius: 8px;
+    font-weight: 700 !important;
+    font-size: 14px !important;
+    transition: opacity 0.2s !important;
+  }
+
+  .nav-cta:hover { opacity: 0.85; color: var(--bg) !important; }
+
+  /* ── SECTIONS ── */
+  section { position: relative; z-index: 1; }
+
+  /* ── HERO ── */
+  #hero {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    padding: 120px 60px 80px;
+    overflow: hidden;
+  }
+
+  .hero-grid-bg {
+    position: absolute;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(0,229,176,0.04) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(0,229,176,0.04) 1px, transparent 1px);
+    background-size: 60px 60px;
+    mask-image: radial-gradient(ellipse 80% 80% at 50% 50%, black 20%, transparent 100%);
+  }
+
+  .hero-glow {
+    position: absolute;
+    top: -200px; left: 50%;
+    transform: translateX(-50%);
+    width: 900px; height: 700px;
+    background: radial-gradient(ellipse, rgba(0,229,176,0.08) 0%, transparent 70%);
+    pointer-events: none;
+  }
+
+  .hero-glow2 {
+    position: absolute;
+    top: 100px; right: -100px;
+    width: 500px; height: 500px;
+    background: radial-gradient(ellipse, rgba(0,184,217,0.07) 0%, transparent 70%);
+    pointer-events: none;
+  }
+
+  .hero-content {
+    max-width: 1200px;
+    margin: 0 auto;
+    width: 100%;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 80px;
+    align-items: center;
+  }
+
+  .hero-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(0,229,176,0.08);
+    border: 1px solid rgba(0,229,176,0.2);
+    border-radius: 100px;
+    padding: 6px 16px;
+    font-family: var(--font-mono);
+    font-size: 12px;
+    color: var(--green);
+    letter-spacing: 0.05em;
+    margin-bottom: 28px;
+    animation: fadeUp 0.6s ease forwards;
+  }
+
+  .hero-badge .dot {
+    width: 6px; height: 6px;
+    background: var(--green);
+    border-radius: 50%;
+    animation: pulse 2s infinite;
+  }
+
+  .hero-title {
+    font-family: var(--font-display);
+    font-size: clamp(44px, 5vw, 68px);
+    font-weight: 800;
+    line-height: 1.05;
+    letter-spacing: -0.02em;
+    margin-bottom: 24px;
+    animation: fadeUp 0.6s 0.1s ease both;
+  }
+
+  .hero-title .accent {
+    background: linear-gradient(135deg, var(--green), var(--teal));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .hero-subtitle {
+    font-size: 18px;
+    color: var(--text2);
+    line-height: 1.7;
+    margin-bottom: 40px;
+    font-weight: 400;
+    max-width: 480px;
+    animation: fadeUp 0.6s 0.2s ease both;
+  }
+
+  .hero-actions {
+    display: flex;
+    gap: 16px;
+    align-items: center;
+    animation: fadeUp 0.6s 0.3s ease both;
+  }
+
+  .btn-primary {
+    background: linear-gradient(135deg, var(--green), var(--teal));
+    color: var(--bg);
+    padding: 16px 36px;
+    border-radius: 10px;
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: 16px;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    transition: all 0.3s ease;
+    box-shadow: 0 0 40px rgba(0,229,176,0.25);
+  }
+
+  .btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 0 60px rgba(0,229,176,0.4);
+  }
+
+  .btn-secondary {
+    color: var(--text2);
+    padding: 16px 28px;
+    border-radius: 10px;
+    font-family: var(--font-body);
+    font-weight: 500;
+    font-size: 15px;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    border: 1px solid var(--border);
+    transition: all 0.3s ease;
+  }
+
+  .btn-secondary:hover {
+    color: var(--green);
+    border-color: rgba(0,229,176,0.3);
+    background: var(--glow);
+  }
+
+  .hero-stats {
+    display: flex;
+    gap: 40px;
+    margin-top: 56px;
+    padding-top: 40px;
+    border-top: 1px solid var(--border2);
+    animation: fadeUp 0.6s 0.4s ease both;
+  }
+
+  .hero-stat-num {
+    font-family: var(--font-display);
+    font-size: 32px;
+    font-weight: 800;
+    color: var(--text);
+    background: linear-gradient(135deg, var(--green), var(--teal));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .hero-stat-label {
+    font-size: 13px;
+    color: var(--text3);
+    margin-top: 2px;
+    font-weight: 500;
+  }
+
+  /* HERO VISUAL */
+  .hero-visual {
+    animation: fadeUp 0.8s 0.2s ease both;
+  }
+
+  .dashboard-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: 0 40px 80px rgba(0,0,0,0.6), 0 0 0 1px rgba(0,229,176,0.05);
+    position: relative;
+  }
+
+  .dashboard-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--green), transparent);
+  }
+
+  .card-header {
+    padding: 16px 20px;
+    border-bottom: 1px solid var(--border2);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    background: var(--bg3);
+  }
+
+  .card-dots { display: flex; gap: 6px; }
+  .card-dot { width: 10px; height: 10px; border-radius: 50%; }
+  .card-dot:nth-child(1) { background: #ff5f56; }
+  .card-dot:nth-child(2) { background: #ffbd2e; }
+  .card-dot:nth-child(3) { background: #27c93f; }
+
+  .card-title-bar {
+    font-family: var(--font-mono);
+    font-size: 12px;
+    color: var(--text3);
+  }
+
+  .card-body { padding: 20px; }
+
+  .agent-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 14px;
+    border-radius: 10px;
+    margin-bottom: 8px;
+    border: 1px solid var(--border2);
+    background: var(--bg3);
+    transition: all 0.3s;
+    animation: slideIn 0.5s ease both;
+  }
+
+  .agent-row:nth-child(1) { animation-delay: 0.5s; }
+  .agent-row:nth-child(2) { animation-delay: 0.65s; }
+  .agent-row:nth-child(3) { animation-delay: 0.8s; }
+  .agent-row:nth-child(4) { animation-delay: 0.95s; }
+  .agent-row:nth-child(5) { animation-delay: 1.1s; }
+
+  .agent-icon {
+    width: 36px; height: 36px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    flex-shrink: 0;
+  }
+
+  .agent-info { flex: 1; min-width: 0; }
+  .agent-name { font-size: 13px; font-weight: 600; color: var(--text); }
+  .agent-status { font-family: var(--font-mono); font-size: 11px; margin-top: 2px; }
+
+  .status-pill {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    padding: 3px 10px;
+    border-radius: 100px;
+    font-weight: 500;
+  }
+
+  .status-active { background: rgba(0,229,176,0.12); color: var(--green); }
+  .status-processing { background: rgba(0,184,217,0.12); color: var(--teal); }
+  .status-ready { background: rgba(100,100,120,0.2); color: var(--text3); }
+
+  .win-score {
+    margin-top: 16px;
+    padding: 16px;
+    background: rgba(0,229,176,0.05);
+    border: 1px solid rgba(0,229,176,0.15);
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .win-score-label { font-size: 12px; color: var(--text3); font-family: var(--font-mono); }
+  .win-score-val {
+    font-family: var(--font-display);
+    font-size: 28px;
+    font-weight: 800;
+    color: var(--green);
+  }
+  .win-score-sub { font-size: 11px; color: var(--text3); margin-top: 2px; }
+
+  /* ── SECTION STYLES ── */
+  .section-inner {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 60px;
+  }
+
+  .section-tag {
+    font-family: var(--font-mono);
+    font-size: 12px;
+    color: var(--green);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .section-tag::before {
+    content: '';
+    width: 24px; height: 1px;
+    background: var(--green);
+  }
+
+  .section-title {
+    font-family: var(--font-display);
+    font-size: clamp(32px, 4vw, 52px);
+    font-weight: 800;
+    line-height: 1.1;
+    letter-spacing: -0.02em;
+    margin-bottom: 20px;
+  }
+
+  .section-sub {
+    font-size: 17px;
+    color: var(--text2);
+    max-width: 560px;
+    line-height: 1.7;
+    margin-bottom: 64px;
+  }
+
+  /* ── HOW IT WORKS ── */
+  #how-it-works {
+    padding: 120px 0;
+    background: linear-gradient(180deg, var(--bg) 0%, var(--bg2) 100%);
+  }
+
+  .flow-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 0;
+    position: relative;
+  }
+
+  .flow-line {
+    position: absolute;
+    left: 24px;
+    top: 60px;
+    bottom: 60px;
+    width: 2px;
+    background: linear-gradient(180deg, var(--green), var(--teal), transparent);
+    opacity: 0.3;
+  }
+
+  .flow-step {
+    display: grid;
+    grid-template-columns: 60px 1fr;
+    gap: 32px;
+    padding: 40px 0;
+    border-bottom: 1px solid var(--border2);
+    align-items: start;
+  }
+
+  .flow-step:last-child { border-bottom: none; }
+
+  .flow-num {
+    width: 48px; height: 48px;
+    border-radius: 12px;
+    border: 1px solid var(--border);
+    background: var(--surface);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: var(--font-mono);
+    font-size: 14px;
+    color: var(--green);
+    flex-shrink: 0;
+    position: relative;
+    z-index: 2;
+  }
+
+  .flow-content { padding-top: 8px; }
+
+  .flow-title {
+    font-family: var(--font-display);
+    font-size: 22px;
+    font-weight: 700;
+    margin-bottom: 10px;
+  }
+
+  .flow-desc {
+    font-size: 15px;
+    color: var(--text2);
+    line-height: 1.7;
+    margin-bottom: 16px;
+  }
+
+  .flow-agents {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .flow-agent-chip {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    padding: 4px 12px;
+    border-radius: 100px;
+    border: 1px solid var(--border);
+    color: var(--text3);
+    background: var(--surface);
+  }
+
+  /* ── AGENTS ── */
+  #agents {
+    padding: 120px 0;
+    background: var(--bg2);
+    overflow: hidden;
+  }
+
+  .agents-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+  }
+
+  .agent-card {
+    background: var(--surface);
+    border: 1px solid var(--border2);
+    border-radius: 16px;
+    padding: 28px;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .agent-card::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, var(--glow) 0%, transparent 60%);
+    opacity: 0;
+    transition: opacity 0.3s;
+  }
+
+  .agent-card:hover {
+    border-color: rgba(0,229,176,0.25);
+    transform: translateY(-4px);
+    box-shadow: 0 20px 60px rgba(0,0,0,0.4), 0 0 0 1px rgba(0,229,176,0.1);
+  }
+
+  .agent-card:hover::before { opacity: 1; }
+
+  .agent-card-icon {
+    width: 48px; height: 48px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 22px;
+    margin-bottom: 20px;
+    position: relative;
+    z-index: 1;
+  }
+
+  .agent-card-name {
+    font-family: var(--font-display);
+    font-size: 17px;
+    font-weight: 700;
+    margin-bottom: 10px;
+    position: relative;
+    z-index: 1;
+  }
+
+  .agent-card-desc {
+    font-size: 14px;
+    color: var(--text2);
+    line-height: 1.6;
+    position: relative;
+    z-index: 1;
+  }
+
+  .agent-card-tag {
+    margin-top: 20px;
+    display: inline-flex;
+    font-family: var(--font-mono);
+    font-size: 10px;
+    color: var(--green);
+    border: 1px solid rgba(0,229,176,0.2);
+    padding: 3px 10px;
+    border-radius: 100px;
+    position: relative;
+    z-index: 1;
+  }
+
+  /* ── FEATURES ── */
+  #features {
+    padding: 120px 0;
+    background: var(--bg);
+  }
+
+  .features-layout {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 80px;
+    align-items: start;
+  }
+
+  .features-left { position: sticky; top: 120px; }
+
+  .features-visual {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 32px;
+    box-shadow: 0 40px 80px rgba(0,0,0,0.5);
+  }
+
+  .feature-chart {
+    margin-top: 24px;
+  }
+
+  .chart-bar-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 14px;
+  }
+
+  .chart-label { font-size: 12px; color: var(--text2); width: 120px; flex-shrink: 0; }
+  .chart-track { flex: 1; height: 8px; background: var(--bg3); border-radius: 4px; overflow: hidden; }
+
+  .chart-fill {
+    height: 100%;
+    border-radius: 4px;
+    background: linear-gradient(90deg, var(--green), var(--teal));
+    animation: fillBar 1.5s ease both;
+  }
+
+  .chart-val { font-family: var(--font-mono); font-size: 12px; color: var(--green); width: 36px; text-align: right; }
+
+  .features-right {}
+
+  .feature-item {
+    padding: 28px 0;
+    border-bottom: 1px solid var(--border2);
+  }
+
+  .feature-item:last-child { border-bottom: none; }
+
+  .feature-item-header {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin-bottom: 10px;
+  }
+
+  .feature-icon {
+    width: 40px; height: 40px;
+    border-radius: 10px;
+    background: rgba(0,229,176,0.08);
+    border: 1px solid rgba(0,229,176,0.15);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    flex-shrink: 0;
+  }
+
+  .feature-item-name {
+    font-family: var(--font-display);
+    font-size: 18px;
+    font-weight: 700;
+  }
+
+  .feature-item-desc {
+    font-size: 14px;
+    color: var(--text2);
+    line-height: 1.7;
+    padding-left: 54px;
+  }
+
+  /* ── ROI / REVENUE ── */
+  #roi {
+    padding: 120px 0;
+    background: linear-gradient(180deg, var(--bg2) 0%, var(--bg3) 100%);
+    overflow: hidden;
+  }
+
+  .roi-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 80px;
+    align-items: center;
+  }
+
+  .roi-calculator {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 36px;
+    box-shadow: 0 40px 80px rgba(0,0,0,0.5);
+  }
+
+  .calc-title {
+    font-family: var(--font-display);
+    font-size: 18px;
+    font-weight: 700;
+    margin-bottom: 24px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .calc-title .calc-icon { font-size: 20px; }
+
+  .calc-input-group { margin-bottom: 20px; }
+
+  .calc-label {
+    font-size: 12px;
+    color: var(--text3);
+    font-family: var(--font-mono);
+    margin-bottom: 8px;
+    display: block;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  .calc-input {
+    width: 100%;
+    background: var(--bg3);
+    border: 1px solid var(--border2);
+    border-radius: 10px;
+    padding: 12px 16px;
+    font-family: var(--font-mono);
+    font-size: 18px;
+    color: var(--text);
+    outline: none;
+    transition: border-color 0.2s;
+  }
+
+  .calc-input:focus { border-color: rgba(0,229,176,0.4); }
+
+  .calc-slider {
+    width: 100%;
+    -webkit-appearance: none;
+    height: 4px;
+    border-radius: 2px;
+    background: linear-gradient(90deg, var(--green) var(--val, 40%), var(--bg3) var(--val, 40%));
+    outline: none;
+    cursor: pointer;
+  }
+
+  .calc-slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 18px; height: 18px;
+    border-radius: 50%;
+    background: var(--green);
+    cursor: pointer;
+    box-shadow: 0 0 12px rgba(0,229,176,0.5);
+  }
+
+  .calc-divider {
+    height: 1px;
+    background: var(--border2);
+    margin: 24px 0;
+  }
+
+  .calc-result {
+    background: rgba(0,229,176,0.05);
+    border: 1px solid rgba(0,229,176,0.2);
+    border-radius: 14px;
+    padding: 24px;
+  }
+
+  .calc-result-label {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--text3);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    margin-bottom: 8px;
+  }
+
+  .calc-result-val {
+    font-family: var(--font-display);
+    font-size: 42px;
+    font-weight: 800;
+    background: linear-gradient(135deg, var(--green), var(--teal));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .calc-result-sub { font-size: 13px; color: var(--text2); margin-top: 6px; }
+
+  .calc-breakdown { margin-top: 20px; display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+
+  .calc-mini {
+    background: var(--bg3);
+    border-radius: 10px;
+    padding: 14px;
+  }
+
+  .calc-mini-val {
+    font-family: var(--font-display);
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--teal);
+    margin-bottom: 4px;
+  }
+
+  .calc-mini-label { font-size: 11px; color: var(--text3); }
+
+  .roi-content {}
+
+  .roi-points { margin-top: 40px; }
+
+  .roi-point {
+    display: flex;
+    gap: 20px;
+    padding: 24px 0;
+    border-bottom: 1px solid var(--border2);
+  }
+
+  .roi-point:last-child { border-bottom: none; }
+
+  .roi-point-num {
+    font-family: var(--font-display);
+    font-size: 42px;
+    font-weight: 800;
+    line-height: 1;
+    background: linear-gradient(135deg, var(--green), var(--teal));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    flex-shrink: 0;
+    width: 80px;
+  }
+
+  .roi-point-text-title {
+    font-family: var(--font-display);
+    font-size: 17px;
+    font-weight: 700;
+    margin-bottom: 6px;
+  }
+
+  .roi-point-text-desc { font-size: 14px; color: var(--text2); line-height: 1.6; }
+
+  /* ── PRICING ── */
+  #pricing {
+    padding: 120px 0;
+    background: var(--bg);
+  }
+
+  .pricing-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 24px;
+    align-items: start;
+  }
+
+  .pricing-card {
+    background: var(--surface);
+    border: 1px solid var(--border2);
+    border-radius: 20px;
+    padding: 36px;
+    position: relative;
+    transition: all 0.3s ease;
+  }
+
+  .pricing-card:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 30px 60px rgba(0,0,0,0.4);
+  }
+
+  .pricing-card.featured {
+    border-color: rgba(0,229,176,0.4);
+    background: linear-gradient(160deg, var(--surface2), var(--surface));
+    box-shadow: 0 0 80px rgba(0,229,176,0.1), 0 40px 80px rgba(0,0,0,0.5);
+    transform: translateY(-12px);
+  }
+
+  .pricing-card.featured:hover { transform: translateY(-18px); }
+
+  .featured-badge {
+    position: absolute;
+    top: -14px; left: 50%;
+    transform: translateX(-50%);
+    background: linear-gradient(135deg, var(--green), var(--teal));
+    color: var(--bg);
+    font-family: var(--font-mono);
+    font-size: 11px;
+    font-weight: 600;
+    padding: 4px 16px;
+    border-radius: 100px;
+    letter-spacing: 0.05em;
+    white-space: nowrap;
+  }
+
+  .pricing-plan {
+    font-family: var(--font-mono);
+    font-size: 12px;
+    color: var(--text3);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    margin-bottom: 12px;
+  }
+
+  .pricing-price {
+    font-family: var(--font-display);
+    font-size: 48px;
+    font-weight: 800;
+    line-height: 1;
+    margin-bottom: 4px;
+  }
+
+  .pricing-currency {
+    font-size: 24px;
+    vertical-align: top;
+    line-height: 1.5;
+    color: var(--text2);
+  }
+
+  .pricing-period {
+    font-size: 14px;
+    color: var(--text3);
+    margin-bottom: 8px;
+  }
+
+  .pricing-desc {
+    font-size: 14px;
+    color: var(--text2);
+    margin-bottom: 28px;
+    line-height: 1.6;
+  }
+
+  .pricing-divider {
+    height: 1px;
+    background: var(--border2);
+    margin-bottom: 28px;
+  }
+
+  .pricing-features { list-style: none; }
+
+  .pricing-features li {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    font-size: 14px;
+    color: var(--text2);
+    margin-bottom: 14px;
+    line-height: 1.5;
+  }
+
+  .pricing-features li .check { color: var(--green); font-size: 14px; flex-shrink: 0; margin-top: 1px; }
+  .pricing-features li .cross { color: var(--text3); flex-shrink: 0; }
+
+  .pricing-btn {
+    display: block;
+    text-align: center;
+    margin-top: 32px;
+    padding: 14px;
+    border-radius: 10px;
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: 15px;
+    text-decoration: none;
+    transition: all 0.3s;
+  }
+
+  .pricing-btn-outline {
+    border: 1px solid var(--border);
+    color: var(--text2);
+  }
+
+  .pricing-btn-outline:hover {
+    border-color: rgba(0,229,176,0.3);
+    color: var(--green);
+    background: var(--glow);
+  }
+
+  .pricing-btn-fill {
+    background: linear-gradient(135deg, var(--green), var(--teal));
+    color: var(--bg);
+    box-shadow: 0 0 30px rgba(0,229,176,0.3);
+  }
+
+  .pricing-btn-fill:hover { box-shadow: 0 0 50px rgba(0,229,176,0.5); }
+
+  /* ── CONTACT ── */
+  #contact {
+    padding: 120px 0;
+    background: linear-gradient(180deg, var(--bg2) 0%, var(--bg) 100%);
+  }
+
+  .contact-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 80px;
+    align-items: start;
+  }
+
+  .contact-info {}
+
+  .contact-detail {
+    display: flex;
+    gap: 16px;
+    margin-bottom: 32px;
+    align-items: flex-start;
+  }
+
+  .contact-icon {
+    width: 44px; height: 44px;
+    border-radius: 10px;
+    background: rgba(0,229,176,0.08);
+    border: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    flex-shrink: 0;
+  }
+
+  .contact-detail-title { font-weight: 600; font-size: 15px; margin-bottom: 4px; }
+  .contact-detail-val { font-size: 14px; color: var(--text2); }
+
+  .contact-form {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 40px;
+  }
+
+  .form-group { margin-bottom: 20px; }
+
+  .form-label {
+    display: block;
+    font-size: 12px;
+    color: var(--text3);
+    font-family: var(--font-mono);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 8px;
+  }
+
+  .form-input, .form-select, .form-textarea {
+    width: 100%;
+    background: var(--bg3);
+    border: 1px solid var(--border2);
+    border-radius: 10px;
+    padding: 14px 16px;
+    font-family: var(--font-body);
+    font-size: 15px;
+    color: var(--text);
+    outline: none;
+    transition: border-color 0.2s;
+    appearance: none;
+  }
+
+  .form-input:focus, .form-select:focus, .form-textarea:focus {
+    border-color: rgba(0,229,176,0.4);
+    box-shadow: 0 0 0 3px rgba(0,229,176,0.06);
+  }
+
+  .form-textarea { resize: vertical; min-height: 100px; }
+
+  .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+
+  .form-submit {
+    width: 100%;
+    background: linear-gradient(135deg, var(--green), var(--teal));
+    color: var(--bg);
+    border: none;
+    padding: 16px;
+    border-radius: 10px;
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: 16px;
+    cursor: pointer;
+    transition: all 0.3s;
+    box-shadow: 0 0 30px rgba(0,229,176,0.25);
+    margin-top: 8px;
+  }
+
+  .form-submit:hover {
+    box-shadow: 0 0 50px rgba(0,229,176,0.4);
+    transform: translateY(-1px);
+  }
+
+  /* ── FOOTER ── */
+  footer {
+    background: var(--bg);
+    border-top: 1px solid var(--border2);
+    padding: 60px;
+  }
+
+  .footer-inner {
+    max-width: 1200px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: 2fr 1fr 1fr 1fr;
+    gap: 60px;
+  }
+
+  .footer-brand-desc {
+    font-size: 14px;
+    color: var(--text3);
+    line-height: 1.7;
+    margin-top: 16px;
+    max-width: 260px;
+  }
+
+  .footer-col-title {
+    font-family: var(--font-display);
+    font-size: 14px;
+    font-weight: 700;
+    margin-bottom: 20px;
+  }
+
+  .footer-links { list-style: none; }
+  .footer-links li { margin-bottom: 12px; }
+  .footer-links a {
+    font-size: 14px;
+    color: var(--text3);
+    text-decoration: none;
+    transition: color 0.2s;
+  }
+  .footer-links a:hover { color: var(--green); }
+
+  .footer-bottom {
+    max-width: 1200px;
+    margin: 40px auto 0;
+    padding-top: 32px;
+    border-top: 1px solid var(--border2);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 13px;
+    color: var(--text3);
+  }
+
+  .footer-bottom a { color: var(--text3); text-decoration: none; }
+  .footer-bottom a:hover { color: var(--green); }
+
+  /* ── ANIMATIONS ── */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(24px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  @keyframes slideIn {
+    from { opacity: 0; transform: translateX(-12px); }
+    to { opacity: 1; transform: translateX(0); }
+  }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.4; }
+  }
+
+  @keyframes fillBar {
+    from { width: 0; }
+  }
+
+  @keyframes float {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-8px); }
+  }
+
+  .float { animation: float 4s ease-in-out infinite; }
+
+  /* ── SCROLL REVEAL ── */
+  .reveal {
+    opacity: 0;
+    transform: translateY(30px);
+    transition: opacity 0.7s ease, transform 0.7s ease;
+  }
+  .reveal.visible { opacity: 1; transform: translateY(0); }
+
+  /* ── GRADIENT TEXT ── */
+  .grad {
+    background: linear-gradient(135deg, var(--green), var(--teal));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  /* ── DIVIDER SECTION ── */
+  .divider-glow {
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(0,229,176,0.3), transparent);
+    margin: 0;
+  }
+
+  /* icon bg helpers */
+  .ic-green { background: rgba(0,229,176,0.1); }
+  .ic-teal { background: rgba(0,184,217,0.1); }
+  .ic-purple { background: rgba(130,80,255,0.1); }
+  .ic-orange { background: rgba(255,140,50,0.1); }
+  .ic-pink { background: rgba(255,80,130,0.1); }
+  .ic-yellow { background: rgba(255,200,50,0.1); }
+
+  /* ── TESTIMONIAL MARQUEE ── */
+  .marquee-section {
+    padding: 60px 0;
+    overflow: hidden;
+    background: var(--bg2);
+    border-top: 1px solid var(--border2);
+    border-bottom: 1px solid var(--border2);
+  }
+
+  .marquee-label {
+    text-align: center;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--text3);
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    margin-bottom: 32px;
+  }
+
+  .marquee-track {
+    display: flex;
+    gap: 32px;
+    animation: marquee 30s linear infinite;
+    width: max-content;
+  }
+
+  .marquee-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    background: var(--surface);
+    border: 1px solid var(--border2);
+    border-radius: 100px;
+    padding: 10px 20px;
+    white-space: nowrap;
+    font-size: 14px;
+    color: var(--text2);
+    flex-shrink: 0;
+  }
+
+  .marquee-item .mi-icon { font-size: 18px; }
+  .marquee-item .mi-text { font-weight: 500; }
+
+  @keyframes marquee {
+    from { transform: translateX(0); }
+    to { transform: translateX(-50%); }
+  }
+
+  /* ── NUMBER COUNTER ── */
+  .counter { display: inline-block; }
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav id="main-nav">
+  <a href="#hero" class="nav-logo">
+    <div class="logo-icon">⚡</div>
+    Tender<span>Edge</span>
+  </a>
+  <ul class="nav-links">
+    <li><a href="#how-it-works">How It Works</a></li>
+    <li><a href="#agents">AI Agents</a></li>
+    <li><a href="#features">Features</a></li>
+    <li><a href="#roi">ROI</a></li>
+    <li><a href="#pricing">Pricing</a></li>
+    <li><a href="#contact" class="nav-cta">Get Started</a></li>
+  </ul>
+</nav>
+
+<!-- HERO -->
+<section id="hero">
+  <div class="hero-grid-bg"></div>
+  <div class="hero-glow"></div>
+  <div class="hero-glow2"></div>
+
+  <div class="hero-content">
+    <div class="hero-left">
+      <div class="hero-badge">
+        <div class="dot"></div>
+        AI-Powered Procurement Intelligence
+      </div>
+
+      <h1 class="hero-title">
+        Win More Tenders.<br>
+        <span class="accent">10× Faster.</span>
+      </h1>
+
+      <p class="hero-subtitle">
+        TenderEdge deploys 15 specialist AI agents that discover, analyse, draft, price and submit bids — so you outcompete everyone else before they've even read the document.
+      </p>
+
+      <div class="hero-actions">
+        <a href="#contact" class="btn-primary">
+          Start Free Trial →
+        </a>
+        <a href="#how-it-works" class="btn-secondary">
+          ▶ See How It Works
+        </a>
+      </div>
+
+      <div class="hero-stats">
+        <div>
+          <div class="hero-stat-num counter" data-target="3.4">3.4×</div>
+          <div class="hero-stat-label">Higher Win Rate</div>
+        </div>
+        <div>
+          <div class="hero-stat-num counter" data-target="87">87%</div>
+          <div class="hero-stat-label">Time Saved per Bid</div>
+        </div>
+        <div>
+          <div class="hero-stat-num">15</div>
+          <div class="hero-stat-label">AI Agents Working 24/7</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="hero-visual float">
+      <div class="dashboard-card">
+        <div class="card-header">
+          <div class="card-dots">
+            <div class="card-dot"></div>
+            <div class="card-dot"></div>
+            <div class="card-dot"></div>
+          </div>
+          <div class="card-title-bar">TenderEdge — Bid Manager Dashboard</div>
+        </div>
+        <div class="card-body">
+
+          <div class="agent-row">
+            <div class="agent-icon ic-green">🔍</div>
+            <div class="agent-info">
+              <div class="agent-name">Tender Discovery Agent</div>
+              <div class="agent-status" style="color:var(--green)">Found 12 matching tenders</div>
+            </div>
+            <div class="status-pill status-active">Active</div>
+          </div>
+
+          <div class="agent-row">
+            <div class="agent-icon ic-teal">📄</div>
+            <div class="agent-info">
+              <div class="agent-name">Tender Reader Agent</div>
+              <div class="agent-status" style="color:var(--teal)">Analysing TANePS-2025-0342</div>
+            </div>
+            <div class="status-pill status-processing">Running</div>
+          </div>
+
+          <div class="agent-row">
+            <div class="agent-icon ic-purple">✅</div>
+            <div class="agent-info">
+              <div class="agent-name">Compliance Agent</div>
+              <div class="agent-status" style="color:var(--text2)">All documents verified</div>
+            </div>
+            <div class="status-pill status-active">Done</div>
+          </div>
+
+          <div class="agent-row">
+            <div class="agent-icon ic-orange">✍️</div>
+            <div class="agent-info">
+              <div class="agent-name">Proposal Drafting Agent</div>
+              <div class="agent-status" style="color:var(--teal)">Writing executive summary...</div>
+            </div>
+            <div class="status-pill status-processing">Running</div>
+          </div>
+
+          <div class="agent-row">
+            <div class="agent-icon ic-yellow">💰</div>
+            <div class="agent-info">
+              <div class="agent-name">Pricing Advisor Agent</div>
+              <div class="agent-status" style="color:var(--text3)">Awaiting draft completion</div>
+            </div>
+            <div class="status-pill status-ready">Queued</div>
+          </div>
+
+          <div class="win-score">
+            <div>
+              <div class="win-score-label">Predicted Win Score</div>
+              <div class="win-score-sub">Based on PE history & bid strength</div>
+            </div>
+            <div class="win-score-val">78%</div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- MARQUEE -->
+<div class="marquee-section">
+  <div class="marquee-label">Trusted by procurement teams across East Africa</div>
+  <div style="overflow:hidden">
+    <div class="marquee-track">
+      <div class="marquee-item"><span class="mi-icon">🏗️</span><span class="mi-text">Infrastructure Firms</span></div>
+      <div class="marquee-item"><span class="mi-icon">💊</span><span class="mi-text">Medical Suppliers</span></div>
+      <div class="marquee-item"><span class="mi-icon">💻</span><span class="mi-text">ICT Companies</span></div>
+      <div class="marquee-item"><span class="mi-icon">🌍</span><span class="mi-text">NGO Contractors</span></div>
+      <div class="marquee-item"><span class="mi-icon">🏢</span><span class="mi-text">Consultancy Firms</span></div>
+      <div class="marquee-item"><span class="mi-icon">🚜</span><span class="mi-text">Equipment Suppliers</span></div>
+      <div class="marquee-item"><span class="mi-icon">📦</span><span class="mi-text">Goods & Supply Companies</span></div>
+      <div class="marquee-item"><span class="mi-icon">⚡</span><span class="mi-text">Energy Contractors</span></div>
+      <!-- Duplicate for seamless loop -->
+      <div class="marquee-item"><span class="mi-icon">🏗️</span><span class="mi-text">Infrastructure Firms</span></div>
+      <div class="marquee-item"><span class="mi-icon">💊</span><span class="mi-text">Medical Suppliers</span></div>
+      <div class="marquee-item"><span class="mi-icon">💻</span><span class="mi-text">ICT Companies</span></div>
+      <div class="marquee-item"><span class="mi-icon">🌍</span><span class="mi-text">NGO Contractors</span></div>
+      <div class="marquee-item"><span class="mi-icon">🏢</span><span class="mi-text">Consultancy Firms</span></div>
+      <div class="marquee-item"><span class="mi-icon">🚜</span><span class="mi-text">Equipment Suppliers</span></div>
+      <div class="marquee-item"><span class="mi-icon">📦</span><span class="mi-text">Goods & Supply Companies</span></div>
+      <div class="marquee-item"><span class="mi-icon">⚡</span><span class="mi-text">Energy Contractors</span></div>
+    </div>
+  </div>
+</div>
+
+<div class="divider-glow"></div>
+
+<!-- HOW IT WORKS -->
+<section id="how-it-works">
+  <div class="section-inner">
+    <div class="reveal">
+      <div class="section-tag">Process</div>
+      <h2 class="section-title">From tender notice to<br>winning submission — <span class="grad">automated.</span></h2>
+      <p class="section-sub">TenderEdge orchestrates 15 AI agents end-to-end. You review and approve; the agents do the heavy lifting.</p>
+    </div>
+
+    <div class="flow-grid reveal">
+      <div class="flow-line"></div>
+
+      <div class="flow-step">
+        <div class="flow-num">01</div>
+        <div class="flow-content">
+          <div class="flow-title">Discover Matching Tenders</div>
+          <div class="flow-desc">The Tender Discovery Agent continuously scans TANePS, TED, NGO portals and government bulletins — alerting you to relevant opportunities before your competitors notice them.</div>
+          <div class="flow-agents">
+            <div class="flow-agent-chip">Tender Discovery Agent</div>
+            <div class="flow-agent-chip">TANePS Integration</div>
+            <div class="flow-agent-chip">TED Portal</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="flow-step">
+        <div class="flow-num">02</div>
+        <div class="flow-content">
+          <div class="flow-title">Deep-Read the Document</div>
+          <div class="flow-desc">The Tender Reader Agent extracts every requirement, scoring criterion, mandatory document, and deadline — structured into a ready-to-act intelligence brief in seconds.</div>
+          <div class="flow-agents">
+            <div class="flow-agent-chip">Tender Reader Agent</div>
+            <div class="flow-agent-chip">Compliance Agent</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="flow-step">
+        <div class="flow-num">03</div>
+        <div class="flow-content">
+          <div class="flow-title">Go / No-Go Decision</div>
+          <div class="flow-desc">The Go/No-Go Agent scores each tender against your capacity, past performance, and win probability — so you only invest time in bids you're positioned to win.</div>
+          <div class="flow-agents">
+            <div class="flow-agent-chip">Go/No-Go Agent</div>
+            <div class="flow-agent-chip">PE Intelligence Agent</div>
+            <div class="flow-agent-chip">Capacity Planner</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="flow-step">
+        <div class="flow-num">04</div>
+        <div class="flow-content">
+          <div class="flow-title">Draft a Winning Proposal</div>
+          <div class="flow-desc">The Proposal Drafting Agent writes every section — cover letter, technical methodology, team CVs, Gantt charts — tailored to that procuring entity's evaluation preferences.</div>
+          <div class="flow-agents">
+            <div class="flow-agent-chip">Proposal Drafting Agent</div>
+            <div class="flow-agent-chip">Regulatory Watch Agent</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="flow-step">
+        <div class="flow-num">05</div>
+        <div class="flow-content">
+          <div class="flow-title">Price to Win</div>
+          <div class="flow-desc">The Pricing Advisor Agent benchmarks your price against historical award data — recommending the optimal bid price that maximises win probability without leaving margin on the table.</div>
+          <div class="flow-agents">
+            <div class="flow-agent-chip">Pricing Advisor Agent</div>
+            <div class="flow-agent-chip">Post-Award Intelligence</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="flow-step">
+        <div class="flow-num">06</div>
+        <div class="flow-content">
+          <div class="flow-title">Submit & Learn</div>
+          <div class="flow-desc">The Submission Agent packages your bid and the Post-Award Intelligence Agent tracks the outcome — feeding every win and loss back into your model to compound your edge over time.</div>
+          <div class="flow-agents">
+            <div class="flow-agent-chip">Submission Agent</div>
+            <div class="flow-agent-chip">Post-Award Intelligence</div>
+            <div class="flow-agent-chip">Document Integrity Agent</div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<div class="divider-glow"></div>
+
+<!-- AI AGENTS -->
+<section id="agents">
+  <div class="section-inner">
+    <div class="reveal">
+      <div class="section-tag">The Engine</div>
+      <h2 class="section-title">15 specialist AI agents.<br><span class="grad">One unified platform.</span></h2>
+      <p class="section-sub">Each agent is purpose-built for a specific step in the procurement cycle and orchestrated by the Bid Manager Agent.</p>
+    </div>
+
+    <div class="agents-grid reveal">
+
+      <div class="agent-card">
+        <div class="agent-card-icon ic-green">🔍</div>
+        <div class="agent-card-name">Tender Discovery Agent</div>
+        <div class="agent-card-desc">Monitors 20+ procurement portals 24/7. Scores and ranks opportunities against your company profile before you wake up.</div>
+        <div class="agent-card-tag">Tier 1 — Core</div>
+      </div>
+
+      <div class="agent-card">
+        <div class="agent-card-icon ic-teal">📋</div>
+        <div class="agent-card-name">Tender Reader Agent</div>
+        <div class="agent-card-desc">Extracts all requirements, criteria, mandatory documents, and submission instructions from any tender document in seconds.</div>
+        <div class="agent-card-tag">Tier 1 — Core</div>
+      </div>
+
+      <div class="agent-card">
+        <div class="agent-card-icon ic-purple">🎯</div>
+        <div class="agent-card-name">Go / No-Go Agent</div>
+        <div class="agent-card-desc">Predicts win probability and compares against your current capacity to prevent costly over-commitment on bids you'll lose.</div>
+        <div class="agent-card-tag">Tier 1 — Core</div>
+      </div>
+
+      <div class="agent-card">
+        <div class="agent-card-icon ic-orange">✍️</div>
+        <div class="agent-card-name">Proposal Drafting Agent</div>
+        <div class="agent-card-desc">Writes executive summaries, technical methodologies, CVs, work plans and risk matrices — fully tailored to the PE's preferences.</div>
+        <div class="agent-card-tag">Tier 1 — Core</div>
+      </div>
+
+      <div class="agent-card">
+        <div class="agent-card-icon ic-yellow">💰</div>
+        <div class="agent-card-name">Pricing Advisor Agent</div>
+        <div class="agent-card-desc">Benchmarks your bid against historical award prices for similar tenders, recommending the optimal price-to-win range.</div>
+        <div class="agent-card-tag">Tier 1 — Core</div>
+      </div>
+
+      <div class="agent-card">
+        <div class="agent-card-icon ic-green">✅</div>
+        <div class="agent-card-name">Compliance Agent</div>
+        <div class="agent-card-desc">Checks every mandatory requirement against your compliance vault. Flags gaps and expired documents before submission.</div>
+        <div class="agent-card-tag">Tier 1 — Core</div>
+      </div>
+
+      <div class="agent-card">
+        <div class="agent-card-icon ic-teal">📤</div>
+        <div class="agent-card-name">Submission Support Agent</div>
+        <div class="agent-card-desc">Packages and formats the complete bid submission to match the tender's exact requirements — print-ready or portal-ready.</div>
+        <div class="agent-card-tag">Tier 1 — Core</div>
+      </div>
+
+      <div class="agent-card">
+        <div class="agent-card-icon ic-pink">🏆</div>
+        <div class="agent-card-name">Post-Award Intelligence</div>
+        <div class="agent-card-desc">Tracks every outcome. Generates win/loss autopsy reports that compound your win rate with every bid submitted.</div>
+        <div class="agent-card-tag">Tier 2 — Growth</div>
+      </div>
+
+      <div class="agent-card">
+        <div class="agent-card-icon ic-purple">🏛️</div>
+        <div class="agent-card-name">PE Intelligence Agent</div>
+        <div class="agent-card-desc">Profiles procuring entities — their evaluation patterns, budget cycles, preferred language, and what makes them award contracts.</div>
+        <div class="agent-card-tag">Tier 2 — Growth</div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<div class="divider-glow"></div>
+
+<!-- FEATURES -->
+<section id="features">
+  <div class="section-inner">
+    <div class="reveal">
+      <div class="section-tag">Platform</div>
+      <h2 class="section-title">Everything your team<br>needs to <span class="grad">dominate tenders.</span></h2>
+    </div>
+
+    <div class="features-layout">
+      <div class="features-left reveal">
+        <div class="features-visual">
+          <div class="section-tag" style="margin-bottom:12px">Win Rate by Feature Used</div>
+          <div class="feature-chart">
+
+            <div class="chart-bar-row">
+              <div class="chart-label">AI Proposal Draft</div>
+              <div class="chart-track"><div class="chart-fill" style="width:82%"></div></div>
+              <div class="chart-val">82%</div>
+            </div>
+
+            <div class="chart-bar-row">
+              <div class="chart-label">Price Optimiser</div>
+              <div class="chart-track"><div class="chart-fill" style="width:74%"></div></div>
+              <div class="chart-val">74%</div>
+            </div>
+
+            <div class="chart-bar-row">
+              <div class="chart-label">PE Profiling</div>
+              <div class="chart-track"><div class="chart-fill" style="width:78%"></div></div>
+              <div class="chart-val">78%</div>
+            </div>
+
+            <div class="chart-bar-row">
+              <div class="chart-label">Compliance Vault</div>
+              <div class="chart-track"><div class="chart-fill" style="width:91%"></div></div>
+              <div class="chart-val">91%</div>
+            </div>
+
+            <div class="chart-bar-row">
+              <div class="chart-label">Go/No-Go Filter</div>
+              <div class="chart-track"><div class="chart-fill" style="width:68%"></div></div>
+              <div class="chart-val">68%</div>
+            </div>
+
+            <div class="chart-bar-row">
+              <div class="chart-label">Post-Award Learning</div>
+              <div class="chart-track"><div class="chart-fill" style="width:87%"></div></div>
+              <div class="chart-val">87%</div>
+            </div>
+
+          </div>
+        </div>
+      </div>
+
+      <div class="features-right reveal">
+
+        <div class="feature-item">
+          <div class="feature-item-header">
+            <div class="feature-icon">🗄️</div>
+            <div class="feature-item-name">One-Click Compliance Vault</div>
+          </div>
+          <div class="feature-item-desc">Upload your certificates once. The system auto-assembles the compliance package for every tender, tracks expiry dates, and alerts you weeks before anything lapses.</div>
+        </div>
+
+        <div class="feature-item">
+          <div class="feature-item-header">
+            <div class="feature-icon">⚔️</div>
+            <div class="feature-item-name">Bid War Room (Team Collaboration)</div>
+          </div>
+          <div class="feature-item-desc">Real-time multi-user editing with role-based access, comment threads, version control, and a live completion dashboard counting down to the deadline.</div>
+        </div>
+
+        <div class="feature-item">
+          <div class="feature-item-header">
+            <div class="feature-icon">🔐</div>
+            <div class="feature-item-name">Document Integrity Engine</div>
+          </div>
+          <div class="feature-item-desc">Cross-references certificates against BRELA, TRA, OSHA, and TMDA databases. Flags tampered documents and generates an integrity confidence score for each bid.</div>
+        </div>
+
+        <div class="feature-item">
+          <div class="feature-item-header">
+            <div class="feature-icon">🌍</div>
+            <div class="feature-item-name">WhatsApp & Mobile-First</div>
+          </div>
+          <div class="feature-item-desc">Receive tender alerts, deadline reminders, and bid status updates directly on WhatsApp. Offline-capable mobile app for teams in the field.</div>
+        </div>
+
+        <div class="feature-item">
+          <div class="feature-item-header">
+            <div class="feature-icon">📊</div>
+            <div class="feature-item-name">Tender Intelligence Dashboard</div>
+          </div>
+          <div class="feature-item-desc">Sector spending trends, geographic heat maps, competitive density analysis, and success rate benchmarking — strategic insight for C-suite decision-making.</div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="divider-glow"></div>
+
+<!-- ROI / REVENUE -->
+<section id="roi">
+  <div class="section-inner">
+    <div class="reveal">
+      <div class="section-tag">Revenue Impact</div>
+      <h2 class="section-title">See exactly how TenderEdge<br><span class="grad">grows your business.</span></h2>
+      <p class="section-sub">Companies on TenderEdge don't just win more tenders — they build a compounding intelligence advantage that makes competitors irrelevant.</p>
+    </div>
+
+    <div class="roi-grid">
+      <div class="reveal">
+        <div class="roi-calculator">
+          <div class="calc-title">
+            <span class="calc-icon">🧮</span>
+            ROI Calculator
+          </div>
+
+          <div class="calc-input-group">
+            <label class="calc-label">Tenders you bid on per year</label>
+            <input type="range" class="calc-slider" id="tenderCount" min="10" max="200" value="40" oninput="updateROI()">
+            <div style="display:flex;justify-content:space-between;margin-top:8px">
+              <span style="font-family:var(--font-mono);font-size:12px;color:var(--text3)">10</span>
+              <span style="font-family:var(--font-mono);font-size:14px;color:var(--green)" id="tenderCountVal">40 tenders/yr</span>
+              <span style="font-family:var(--font-mono);font-size:12px;color:var(--text3)">200</span>
+            </div>
+          </div>
+
+          <div class="calc-input-group">
+            <label class="calc-label">Average contract value (USD)</label>
+            <input type="range" class="calc-slider" id="contractVal" min="10000" max="2000000" step="10000" value="150000" oninput="updateROI()">
+            <div style="display:flex;justify-content:space-between;margin-top:8px">
+              <span style="font-family:var(--font-mono);font-size:12px;color:var(--text3)">$10K</span>
+              <span style="font-family:var(--font-mono);font-size:14px;color:var(--green)" id="contractValDisplay">$150,000</span>
+              <span style="font-family:var(--font-mono);font-size:12px;color:var(--text3)">$2M</span>
+            </div>
+          </div>
+
+          <div class="calc-input-group">
+            <label class="calc-label">Your current win rate</label>
+            <input type="range" class="calc-slider" id="winRate" min="5" max="60" value="15" oninput="updateROI()">
+            <div style="display:flex;justify-content:space-between;margin-top:8px">
+              <span style="font-family:var(--font-mono);font-size:12px;color:var(--text3)">5%</span>
+              <span style="font-family:var(--font-mono);font-size:14px;color:var(--green)" id="winRateDisplay">15%</span>
+              <span style="font-family:var(--font-mono);font-size:12px;color:var(--text3)">60%</span>
+            </div>
+          </div>
+
+          <div class="calc-divider"></div>
+
+          <div class="calc-result">
+            <div class="calc-result-label">Additional Annual Revenue with TenderEdge</div>
+            <div class="calc-result-val" id="roiResult">$2,025,000</div>
+            <div class="calc-result-sub" id="roiSub">Based on 3.4× win rate improvement on 40 tenders</div>
+          </div>
+
+          <div class="calc-breakdown">
+            <div class="calc-mini">
+              <div class="calc-mini-val" id="currentRev">$900K</div>
+              <div class="calc-mini-label">Current Revenue/yr</div>
+            </div>
+            <div class="calc-mini">
+              <div class="calc-mini-val" id="newRev">$2.9M</div>
+              <div class="calc-mini-label">Revenue with TenderEdge</div>
+            </div>
+            <div class="calc-mini">
+              <div class="calc-mini-val" id="extraWins">+14</div>
+              <div class="calc-mini-label">Additional Wins/yr</div>
+            </div>
+            <div class="calc-mini">
+              <div class="calc-mini-val">200×</div>
+              <div class="calc-mini-label">ROI on subscription</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="roi-content reveal">
+        <div class="roi-points">
+
+          <div class="roi-point">
+            <div class="roi-point-num">3.4×</div>
+            <div>
+              <div class="roi-point-text-title">Higher Win Rate, Guaranteed</div>
+              <div class="roi-point-text-desc">TenderEdge users win 3.4× more tenders than manual bidders. AI-optimised proposals, perfect compliance, and PE-tailored language give you a structural advantage your competitors simply don't have.</div>
+            </div>
+          </div>
+
+          <div class="roi-point">
+            <div class="roi-point-num">87%</div>
+            <div>
+              <div class="roi-point-text-title">Less Time Per Bid</div>
+              <div class="roi-point-text-desc">What takes your team 3 weeks takes TenderEdge 2 hours. That frees your people to focus on delivery — and lets you bid on 5× more tenders per year without hiring anyone new.</div>
+            </div>
+          </div>
+
+          <div class="roi-point">
+            <div class="roi-point-num">∞</div>
+            <div>
+              <div class="roi-point-text-title">Compounding Intelligence Moat</div>
+              <div class="roi-point-text-desc">Every bid you submit makes TenderEdge smarter for your business. After 12 months, your platform holds proprietary data on which PEs, evaluators, and price points win — a moat your competitors can never replicate.</div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="divider-glow"></div>
+
+<!-- PRICING -->
+<section id="pricing">
+  <div class="section-inner">
+    <div class="reveal" style="text-align:center">
+      <div class="section-tag" style="justify-content:center">Pricing</div>
+      <h2 class="section-title">Simple plans. <span class="grad">Extraordinary returns.</span></h2>
+      <p class="section-sub" style="margin:0 auto 64px">Start free. Scale as you win more. Every plan pays for itself with a single contract.</p>
+    </div>
+
+    <div class="pricing-grid reveal">
+
+      <!-- STARTER -->
+      <div class="pricing-card">
+        <div class="pricing-plan">Starter</div>
+        <div class="pricing-price"><span class="pricing-currency">$</span>149</div>
+        <div class="pricing-period">per month</div>
+        <div class="pricing-desc">Perfect for SMEs bidding on government and NGO tenders for the first time with AI assistance.</div>
+        <div class="pricing-divider"></div>
+        <ul class="pricing-features">
+          <li><span class="check">✓</span> Up to 10 tenders/month</li>
+          <li><span class="check">✓</span> 5 core AI agents</li>
+          <li><span class="check">✓</span> Tender Discovery (3 portals)</li>
+          <li><span class="check">✓</span> AI Proposal Drafting</li>
+          <li><span class="check">✓</span> Compliance Vault (10 docs)</li>
+          <li><span class="check">✓</span> Go/No-Go scoring</li>
+          <li><span class="cross">—</span> <span style="color:var(--text3)">PE Intelligence Profiling</span></li>
+          <li><span class="cross">—</span> <span style="color:var(--text3)">Bid War Room</span></li>
+          <li><span class="cross">—</span> <span style="color:var(--text3)">Post-Award Intelligence</span></li>
+        </ul>
+        <a href="#contact" class="pricing-btn pricing-btn-outline">Get Started Free →</a>
+      </div>
+
+      <!-- PRO (FEATURED) -->
+      <div class="pricing-card featured">
+        <div class="featured-badge">✦ Most Popular</div>
+        <div class="pricing-plan">Professional</div>
+        <div class="pricing-price" style="background:linear-gradient(135deg,var(--green),var(--teal));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text"><span style="font-size:24px;vertical-align:top;line-height:1.5;-webkit-text-fill-color:var(--text2)">$</span>399</div>
+        <div class="pricing-period">per month</div>
+        <div class="pricing-desc">For serious bidding companies that want every possible advantage over competitors.</div>
+        <div class="pricing-divider"></div>
+        <ul class="pricing-features">
+          <li><span class="check">✓</span> Unlimited tenders/month</li>
+          <li><span class="check">✓</span> All 15 AI agents</li>
+          <li><span class="check">✓</span> 20+ portal integrations</li>
+          <li><span class="check">✓</span> AI Proposal + Pricing Advisor</li>
+          <li><span class="check">✓</span> Compliance Vault (unlimited)</li>
+          <li><span class="check">✓</span> PE Intelligence Profiling</li>
+          <li><span class="check">✓</span> Bid War Room (5 users)</li>
+          <li><span class="check">✓</span> Post-Award Intelligence</li>
+          <li><span class="check">✓</span> WhatsApp integration</li>
+        </ul>
+        <a href="#contact" class="pricing-btn pricing-btn-fill">Start 14-Day Free Trial</a>
+      </div>
+
+      <!-- ENTERPRISE -->
+      <div class="pricing-card">
+        <div class="pricing-plan">Enterprise</div>
+        <div class="pricing-price">Custom</div>
+        <div class="pricing-period">custom pricing</div>
+        <div class="pricing-desc">For large firms, consortium leaders, and organisations that need white-labelling or B2G integrations.</div>
+        <div class="pricing-divider"></div>
+        <ul class="pricing-features">
+          <li><span class="check">✓</span> Everything in Professional</li>
+          <li><span class="check">✓</span> Unlimited users & seats</li>
+          <li><span class="check">✓</span> Consortium Builder Agent</li>
+          <li><span class="check">✓</span> Document Integrity Engine (B2G)</li>
+          <li><span class="check">✓</span> Multi-language Agent</li>
+          <li><span class="check">✓</span> Appeal & Dispute Agent</li>
+          <li><span class="check">✓</span> Custom PE data integrations</li>
+          <li><span class="check">✓</span> Dedicated success manager</li>
+          <li><span class="check">✓</span> SLA & uptime guarantees</li>
+        </ul>
+        <a href="#contact" class="pricing-btn pricing-btn-outline">Contact Sales →</a>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<div class="divider-glow"></div>
+
+<!-- CONTACT -->
+<section id="contact">
+  <div class="section-inner">
+    <div class="reveal">
+      <div class="section-tag">Get Started</div>
+      <h2 class="section-title">Ready to win more<br>tenders? <span class="grad">Let's talk.</span></h2>
+    </div>
+
+    <div class="contact-grid">
+      <div class="contact-info reveal">
+        <p style="font-size:17px;color:var(--text2);line-height:1.8;margin-bottom:40px">Book a free 30-minute demo and we'll show you exactly how TenderEdge would work for your sector, your portals, and your team — with a projected ROI report included.</p>
+
+        <div class="contact-detail">
+          <div class="contact-icon">📧</div>
+          <div>
+            <div class="contact-detail-title">Email Us</div>
+            <div class="contact-detail-val">hello@tenderEdge.ai</div>
+          </div>
+        </div>
+
+        <div class="contact-detail">
+          <div class="contact-icon">💬</div>
+          <div>
+            <div class="contact-detail-title">WhatsApp</div>
+            <div class="contact-detail-val">+255 700 000 000</div>
+          </div>
+        </div>
+
+        <div class="contact-detail">
+          <div class="contact-icon">📍</div>
+          <div>
+            <div class="contact-detail-title">Headquarters</div>
+            <div class="contact-detail-val">Dar es Salaam, Tanzania<br>Serving all of East Africa</div>
+          </div>
+        </div>
+
+        <div class="contact-detail">
+          <div class="contact-icon">⏱️</div>
+          <div>
+            <div class="contact-detail-title">Response Time</div>
+            <div class="contact-detail-val">We reply within 2 hours during business hours</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="reveal">
+        <div class="contact-form">
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">First Name</label>
+              <input type="text" class="form-input" placeholder="Amina">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Last Name</label>
+              <input type="text" class="form-input" placeholder="Okonkwo">
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Company / Organisation</label>
+            <input type="text" class="form-input" placeholder="Your Company Ltd">
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Email</label>
+            <input type="email" class="form-input" placeholder="amina@company.co.tz">
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Your Sector</label>
+            <select class="form-select">
+              <option value="">Select your primary sector...</option>
+              <option>Infrastructure & Construction</option>
+              <option>ICT & Technology</option>
+              <option>Medical & Pharmaceuticals</option>
+              <option>Goods & Supply</option>
+              <option>Consultancy & Advisory</option>
+              <option>Energy & Environment</option>
+              <option>NGO / Development</option>
+              <option>Other</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Tenders per year (approx.)</label>
+            <select class="form-select">
+              <option>1 – 10</option>
+              <option>10 – 30</option>
+              <option selected>30 – 80</option>
+              <option>80 – 200</option>
+              <option>200+</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Message (optional)</label>
+            <textarea class="form-textarea" placeholder="Tell us what portals you use, your biggest pain point, or any questions..."></textarea>
+          </div>
+
+          <button type="button" class="form-submit" onclick="handleSubmit()">
+            Book My Free Demo →
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-inner">
+    <div>
+      <a href="#hero" class="nav-logo" style="margin-bottom:16px;display:inline-flex">
+        <div class="logo-icon">⚡</div>
+        Tender<span>Edge</span>
+      </a>
+      <p class="footer-brand-desc">AI-powered procurement intelligence for East Africa. Win more tenders, waste less time, build an unassailable competitive edge.</p>
+    </div>
+
+    <div>
+      <div class="footer-col-title">Platform</div>
+      <ul class="footer-links">
+        <li><a href="#how-it-works">How It Works</a></li>
+        <li><a href="#agents">AI Agents</a></li>
+        <li><a href="#features">Features</a></li>
+        <li><a href="#pricing">Pricing</a></li>
+      </ul>
+    </div>
+
+    <div>
+      <div class="footer-col-title">Resources</div>
+      <ul class="footer-links">
+        <li><a href="#">Documentation</a></li>
+        <li><a href="#">Blog</a></li>
+        <li><a href="#">Case Studies</a></li>
+        <li><a href="#">API Access</a></li>
+      </ul>
+    </div>
+
+    <div>
+      <div class="footer-col-title">Company</div>
+      <ul class="footer-links">
+        <li><a href="#">About Us</a></li>
+        <li><a href="#">Careers</a></li>
+        <li><a href="#contact">Contact</a></li>
+        <li><a href="#">Privacy Policy</a></li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="footer-bottom">
+    <div>© 2025 TenderEdge. All rights reserved.</div>
+    <div style="display:flex;gap:24px">
+      <a href="#">Terms</a>
+      <a href="#">Privacy</a>
+      <a href="#">Security</a>
+    </div>
+  </div>
+</footer>
+
+<script>
+  // ── ROI CALCULATOR ──
+  function formatMoney(n) {
+    if (n >= 1000000) return '$' + (n / 1000000).toFixed(1) + 'M';
+    if (n >= 1000) return '$' + Math.round(n / 1000) + 'K';
+    return '$' + n;
+  }
+
+  function updateROI() {
+    const tenders = parseInt(document.getElementById('tenderCount').value);
+    const contract = parseInt(document.getElementById('contractVal').value);
+    const winRate = parseInt(document.getElementById('winRate').value);
+
+    document.getElementById('tenderCountVal').textContent = tenders + ' tenders/yr';
+    document.getElementById('contractValDisplay').textContent = '$' + contract.toLocaleString();
+    document.getElementById('winRateDisplay').textContent = winRate + '%';
+
+    const currentWins = Math.round(tenders * (winRate / 100));
+    const currentRevenue = currentWins * contract;
+
+    const newWinRate = Math.min(winRate * 3.4, 85);
+    const newWins = Math.round(tenders * (newWinRate / 100));
+    const newRevenue = newWins * contract;
+    const extra = newRevenue - currentRevenue;
+    const extraWins = newWins - currentWins;
+
+    document.getElementById('roiResult').textContent = formatMoney(extra);
+    document.getElementById('roiSub').textContent = `Based on 3.4× win rate improvement on ${tenders} tenders`;
+    document.getElementById('currentRev').textContent = formatMoney(currentRevenue);
+    document.getElementById('newRev').textContent = formatMoney(newRevenue);
+    document.getElementById('extraWins').textContent = '+' + extraWins;
+  }
+
+  updateROI();
+
+  // ── SCROLL REVEAL ──
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('visible');
+      }
+    });
+  }, { threshold: 0.12 });
+
+  document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+
+  // ── NAV SCROLL ──
+  window.addEventListener('scroll', () => {
+    const nav = document.getElementById('main-nav');
+    if (window.scrollY > 60) {
+      nav.style.background = 'rgba(5,12,15,0.97)';
+    } else {
+      nav.style.background = 'rgba(5,12,15,0.85)';
+    }
+  });
+
+  // ── FORM SUBMIT ──
+  function handleSubmit() {
+    const btn = document.querySelector('.form-submit');
+    btn.textContent = '✓ Demo Request Sent! We\'ll be in touch within 2 hours.';
+    btn.style.background = 'linear-gradient(135deg, #27c93f, #00c49a)';
+    btn.disabled = true;
+  }
+
+  // ── ACTIVE NAV ──
+  const sections = document.querySelectorAll('section[id]');
+  const navLinks = document.querySelectorAll('.nav-links a');
+
+  window.addEventListener('scroll', () => {
+    let current = '';
+    sections.forEach(sec => {
+      if (window.scrollY >= sec.offsetTop - 140) current = sec.id;
+    });
+    navLinks.forEach(a => {
+      a.style.color = '';
+      if (a.getAttribute('href') === '#' + current) {
+        a.style.color = 'var(--green)';
+      }
+    });
+  });
+</script>
+</body>
+</html>
